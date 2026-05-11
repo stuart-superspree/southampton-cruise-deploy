@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Setup required · Southampton Cruise Wayfinding</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #f6f3ee; color: #14232c;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .card {
+      max-width: 520px;
+      background: #ffffff;
+      border: 1px solid #e6e0d6;
+      border-radius: 18px;
+      padding: 32px;
+      box-shadow: 0 12px 32px rgba(15, 42, 58, 0.10);
+    }
+    h1 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 28px;
+      color: #0f2a3a;
+      margin: 0 0 8px;
+    }
+    .eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: #e2614a;
+      margin: 0 0 6px;
+    }
+    p { margin: 0 0 16px; color: #4a5a64; }
+    .steps {
+      margin: 20px 0 0;
+      padding: 16px;
+      background: #f6f3ee;
+      border-radius: 12px;
+      border: 1px solid #e6e0d6;
+    }
+    .steps h2 {
+      font-size: 14px; margin: 0 0 10px;
+      color: #0f2a3a;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .steps ol { margin: 0; padding-left: 22px; }
+    .steps li { margin: 0 0 8px; font-size: 15px; color: #14232c; }
+    code {
+      background: #0f2a3a;
+      color: #d6a14a;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 13px;
+    }
+    .footer {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #8092a0;
+      border-top: 1px solid #e6e0d6;
+      padding-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <p class="eyebrow">Setup required</p>
+    <h1>One step to go</h1>
+    <p>
+      This is a placeholder. The Southampton Cruise Wayfinding demo HTML
+      lives in the parent folder and needs to be copied into
+      <code>public/index.html</code> before deploying.
+    </p>
+
+    <div class="steps">
+      <h2>Run one of these from the deploy folder</h2>
+      <ol>
+        <li>
+          <strong>Windows (easiest):</strong> double-click <code>setup.bat</code>
+        </li>
+        <li>
+          <strong>Mac or Linux:</strong> <code>bash setup.sh</code>
+        </li>
+        <li>
+          <strong>Anywhere with Node:</strong> <code>node prepare.js</code>
+        </li>
+      </ol>
+    </div>
+
+    <p style="margin-top: 24px;">
+      The script copies <code>Southampton_Cruise_Wayfinding_v1.html</code>
+      from the parent folder over this placeholder. Re-run any time the
+      source file is updated.
+    </p>
+
+    <p>
+      Then commit and push: <code>git add . &amp;&amp; git commit -m "Demo" &amp;&amp; git push</code>
+    </p>
+
+    <div class="footer">
+      Southampton Cruise Wayfinding · v1.0.5 · Powered by Superspree · Loop
+    </div>
+  </div>
+</body>
+</html>

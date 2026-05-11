@@ -1,0 +1,15 @@
+{
+  "name": "southampton-cruise-wayfinding",
+  "version": "1.0.5",
+  "description": "Visit Southampton cruise day out demo. NFC-driven city wayfinding for cruise passengers.",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "prepare-content": "node prepare.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "Stu (Superspree)",
+  "license": "UNLICENSED"
+}
