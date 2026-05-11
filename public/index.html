@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  Southampton Cruise Wayfinding
+  Visit Southampton pitch demo, by Superspree · Loop
+  Version: 1.0.5
+  Last updated: 2026-05-11
+  Spec:    Southampton_Cruise_Wayfinding_Spec_v1.md (see §14 review log)
+  Deploy:  southampton-cruise-deploy/ folder (Railway-ready)
+  ============================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f2a3a" />
+  <meta name="description" content="Your Southampton cruise day out. Discover the city by Loop." />
+  <meta name="version" content="1.0.5" />
+  <meta name="last-updated" content="2026-05-11" />
+  <title>Visit Southampton · Cruise Day Out (v1.0.5)</title>
+  <link rel="preconnect" href="https://assets.simpleviewinc.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" />
+  <style>
+    :root {
+      --brand-navy: #0f2a3a;
+      --brand-navy-2: #1a3a52;
+      --brand-teal: #2a6f8a;
+      --brand-gold: #d6a14a;
+      --brand-coral: #e2614a;
+      --bg: #f6f3ee;
+      --surface: #ffffff;
+      --ink: #14232c;
+      --ink-soft: #4a5a64;
+      --ink-mute: #8092a0;
+      --line: #e6e0d6;
+      --line-strong: #d4c9b8;
+      --good: #2e7d57;
+      --warn: #c98f29;
+      --bad: #c0392b;
+      --radius-card: 18px;
+      --radius-pill: 999px;
+      --shadow-sm: 0 1px 2px rgba(15, 42, 58, 0.06), 0 2px 6px rgba(15, 42, 58, 0.04);
+      --shadow-md: 0 4px 16px rgba(15, 42, 58, 0.10), 0 2px 4px rgba(15, 42, 58, 0.06);
+      --shadow-lg: 0 12px 32px rgba(15, 42, 58, 0.16);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; min-height: 100dvh; overflow-x: hidden; }
+    .phone { position: relative; max-width: 440px; min-height: 100vh; min-height: 100dvh; margin: 0 auto; background: var(--bg); padding-bottom: calc(var(--safe-bottom) + 88px); overflow-x: hidden; }
+    @media (min-width: 600px) { body { padding: 24px 0; background: linear-gradient(135deg, #1a3a52 0%, #0f2a3a 100%); } .phone { min-height: calc(100vh - 48px); box-shadow: var(--shadow-lg); border-radius: 28px; overflow: hidden; } }
+    .screen { display: none; padding-top: var(--safe-top); animation: fadeIn 220ms ease both; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .screen, * { animation: none !important; transition: none !important; } }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+    .topbar.transparent { background: transparent; border-color: transparent; }
+    .vs-logo { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 18px; color: var(--brand-navy); line-height: 1; letter-spacing: 0.01em; text-decoration: none; }
+    .vs-logo span { display: block; font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: 0.14em; color: var(--brand-teal); text-transform: uppercase; }
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-btn { width: 44px; height: 44px; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; color: var(--ink); }
+    .icon-btn:focus-visible { outline: 3px solid var(--brand-gold); outline-offset: 2px; }
+    .icon-btn:hover { background: var(--bg); }
+    .countdown { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: var(--radius-pill); background: var(--brand-navy); color: #fff; font-size: 13px; font-weight: 600; border: none; cursor: pointer; }
+    .countdown.amber { background: var(--warn); }
+    .countdown.red { background: var(--brand-coral); animation: pulse 1.4s ease-in-out infinite; }
+    .countdown .dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; opacity: 0.85; }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(226,97,74,.5); } 50% { box-shadow: 0 0 0 8px rgba(226,97,74,0); } }
+    .welcome-hero { position: relative; height: 62vh; min-height: 460px; background: linear-gradient(180deg, rgba(15,42,58,0) 0%, rgba(15,42,58,0) 35%, rgba(15,42,58,0.85) 100%), url('https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_1100,q_70,w_700/v1/clients/southampton/Home_Page_Header_Bargate_1920x927_8dc4ae29-564f-477d-8bc9-779ae24dcb8f.jpg') center/cover no-repeat; color: #fff; display: flex; flex-direction: column; justify-content: flex-end; padding: 32px 24px; }
+    .welcome-hero .vs-logo, .welcome-hero .vs-logo span { color: #fff; }
+    .welcome-eyebrow { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(22px, 6vw, 28px); font-weight: 800; letter-spacing: 0.01em; text-transform: none; color: #ffffff; margin: 0 0 14px; text-shadow: 0 2px 12px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.45); line-height: 1.1; }
+    .welcome-title { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(34px, 9vw, 44px); line-height: 1.05; font-weight: 700; margin: 0 0 12px; }
+    .welcome-sub { font-size: 16px; opacity: 0.92; margin: 0 0 24px; max-width: 30ch; }
+    .welcome-cta-row { display: flex; flex-direction: column; gap: 10px; padding: 24px; background: var(--surface); }
+    .welcome-tagline { padding: 24px 24px 0; font-size: 14px; color: var(--ink-soft); }
+    .welcome-tagline strong { color: var(--brand-navy); }
+    .welcome-foot { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; color: var(--ink-mute); letter-spacing: 0.06em; padding: 20px 24px 28px; text-transform: uppercase; }
+    .welcome-foot strong { color: var(--brand-teal); font-weight: 600; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 22px; min-height: 50px; border-radius: 14px; border: none; cursor: pointer; font-family: inherit; font-size: 16px; font-weight: 600; text-decoration: none; width: 100%; transition: transform 120ms ease, box-shadow 120ms ease; }
+    .btn:active { transform: translateY(1px); }
+    .btn:focus-visible { outline: 3px solid var(--brand-gold); outline-offset: 2px; }
+    .btn-primary { background: var(--brand-navy); color: #fff; box-shadow: var(--shadow-md); }
+    .btn-primary:hover { background: var(--brand-navy-2); }
+    .btn-secondary { background: var(--surface); color: var(--brand-navy); border: 1.5px solid var(--brand-navy); }
+    .btn-ghost { background: transparent; color: var(--brand-navy); font-weight: 500; }
+    .btn-coral { background: var(--brand-coral); color: #fff; box-shadow: var(--shadow-md); }
+    .btn-coral:hover { background: #cf5039; }
+    .btn-arrow::after { content: '→'; margin-left: 6px; font-weight: 700; }
+    .screen-pad { padding: 20px 18px; }
+    .h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 30px; line-height: 1.1; font-weight: 700; margin: 0 0 6px; color: var(--brand-navy); }
+    .h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; line-height: 1.15; font-weight: 700; margin: 0 0 6px; color: var(--brand-navy); }
+    .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brand-teal); margin: 0 0 6px; }
+    .lead { font-size: 16px; color: var(--ink-soft); margin: 0 0 16px; }
+    .card { background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 14px; }
+    .card-pad { padding: 18px; }
+    .yah { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-teal) 100%); color: #fff; padding: 16px 18px; border-radius: var(--radius-card); margin: 16px 18px 18px; box-shadow: var(--shadow-sm); }
+    .yah-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.16); display: inline-flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .yah-text { line-height: 1.25; }
+    .yah-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brand-gold); margin: 0 0 2px; }
+    .yah-name { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 18px; }
+    .tour-card { position: relative; border-radius: var(--radius-card); overflow: hidden; background: var(--surface); box-shadow: var(--shadow-sm); cursor: pointer; transition: transform 160ms ease, box-shadow 160ms ease; border: none; text-align: left; padding: 0; width: 100%; display: block; font: inherit; color: inherit; }
+    .tour-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .tour-card:focus-visible { outline: 3px solid var(--brand-gold); outline-offset: 2px; }
+    .tour-card .tour-img-wrap { position: relative; aspect-ratio: 16/9; background: var(--brand-navy); overflow: hidden; }
+    .tour-card .tour-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 600ms ease; }
+    .tour-card:hover .tour-img-wrap img { transform: scale(1.04); }
+    .tour-card .tour-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(15,42,58,0.85) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 18px; }
+    .tour-card .tour-theme { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 4px 10px; border-radius: var(--radius-pill); background: rgba(255,255,255,0.92); color: var(--brand-navy); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: auto; }
+    .tour-card .tour-title { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 700; color: #fff; margin: 8px 0 4px; line-height: 1.12; }
+    .tour-card .tour-meta { font-size: 13px; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 8px; }
+    .tour-card .tour-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.6); display: inline-block; }
+    .walk-hero { position: relative; overflow: hidden; border-radius: var(--radius-card); margin: 0 18px 14px; box-shadow: var(--shadow-sm); aspect-ratio: 16/10; background: linear-gradient(135deg, rgba(15,42,58,0.6) 0%, rgba(15,42,58,0.2) 60%, rgba(15,42,58,0.8) 100%), url('https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Three_Hour_Whirlwind_Tour_header_credit_Ryan_Stanikk_fa50259d-f981-4b14-b4db-54ae9e14a5bd.png') center/cover no-repeat; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px; color: #fff; cursor: pointer; border: none; text-align: left; font: inherit; width: calc(100% - 36px); }
+    .walk-hero:focus-visible { outline: 3px solid var(--brand-gold); outline-offset: 2px; }
+    .walk-hero .we { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brand-gold); margin: 0 0 4px; }
+    .walk-hero .wt { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 24px; line-height: 1.1; margin: 0 0 4px; }
+    .walk-hero .wm { font-size: 13px; opacity: 0.95; display: flex; align-items: center; gap: 8px; }
+    .walk-hero .wm .dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.6); display: inline-block; }
+    .step-hero { position: relative; aspect-ratio: 16/10; background: var(--brand-navy); overflow: hidden; }
+    .step-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .step-hero .step-eyebrow { position: absolute; top: 16px; left: 16px; background: rgba(15,42,58,0.85); color: #fff; padding: 6px 12px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+    .step-body { padding: 20px 18px 100px; }
+    .step-progress { display: flex; gap: 4px; margin-bottom: 14px; }
+    .step-progress .pip { flex: 1; height: 4px; border-radius: 2px; background: var(--line-strong); }
+    .step-progress .pip.done { background: var(--brand-teal); }
+    .step-progress .pip.current { background: var(--brand-navy); }
+    .step-instruction { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); margin: 14px 0 18px; }
+    .step-arrow { width: 44px; height: 44px; border-radius: 50%; background: var(--brand-gold); color: var(--brand-navy); display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; flex-shrink: 0; }
+    .step-instruction .step-text { font-size: 15px; font-weight: 500; color: var(--ink); line-height: 1.35; }
+    .step-instruction .step-text strong { color: var(--brand-navy); }
+    .step-actions { position: fixed; bottom: 0; left: 0; right: 0; max-width: 440px; margin: 0 auto; padding: 14px 18px calc(14px + var(--safe-bottom)); background: linear-gradient(0deg, var(--bg) 70%, rgba(246,243,238,0)); display: flex; gap: 10px; z-index: 30; }
+    .step-actions .btn-secondary { flex: 0 0 auto; width: auto; min-width: 56px; padding: 14px 16px; }
+    .step-actions .btn-primary { flex: 1; }
+    .minimap { background: linear-gradient(180deg, #eaeae3 0%, #f4f1ea 100%); border-radius: 14px; padding: 14px; margin: 4px 0 12px; border: 1px solid var(--line); }
+    .minimap-title { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--ink-soft); letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 8px; }
+    .minimap svg { width: 100%; height: auto; display: block; }
+    .stop-list { list-style: none; padding: 0; margin: 14px 0; counter-reset: stop; }
+    .stop-list li { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--line); counter-increment: stop; }
+    .stop-list li:last-child { border-bottom: none; }
+    .stop-list li::before { content: counter(stop); flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--brand-navy); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; font-family: 'Inter', sans-serif; }
+    .stop-list .stop-name { font-weight: 600; color: var(--brand-navy); display: block; font-size: 15px; }
+    .stop-list .stop-sub { font-size: 13px; color: var(--ink-mute); display: block; }
+    .floating-return { position: fixed; bottom: 14px; right: 14px; z-index: 25; }
+    @media (min-width: 600px) { .floating-return { right: max(calc(50vw - 220px + 14px), 14px); } }
+    .floating-return button { display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: var(--radius-pill); background: var(--surface); color: var(--brand-navy); box-shadow: var(--shadow-md); border: 1.5px solid var(--brand-navy); font: inherit; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .floating-return.urgent button { background: var(--brand-coral); color: #fff; border-color: var(--brand-coral); }
+    .lang-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 14px 0; }
+    .lang-card { display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--surface); border: 2px solid var(--line); border-radius: 14px; cursor: pointer; font: inherit; text-align: left; width: 100%; transition: border-color 160ms ease; }
+    .lang-card:hover { border-color: var(--brand-teal); }
+    .lang-card.active { border-color: var(--brand-navy); background: #fbf8f2; }
+    .lang-card:disabled { opacity: 0.5; cursor: not-allowed; }
+    .lang-card .lang-flag { width: 32px; height: 22px; border-radius: 3px; background-size: cover; background-position: center; box-shadow: 0 0 0 1px rgba(0,0,0,0.05); flex-shrink: 0; }
+    .lang-card .lang-meta { line-height: 1.2; }
+    .lang-card .lang-name { font-weight: 600; color: var(--brand-navy); font-size: 14px; }
+    .lang-card .lang-en { font-size: 12px; color: var(--ink-mute); }
+    /* St George's Cross (England): white field with a red cross. */
+    .flag-en { background: #ffffff; position: relative; overflow: hidden; }
+    .flag-en::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, #c8102e 40%, #c8102e 60%, transparent 60%); }
+    .flag-en::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, transparent 44%, #c8102e 44%, #c8102e 56%, transparent 56%); }
+    .flag-de { background: linear-gradient(to bottom, #000 33%, #dd0000 33%, #dd0000 66%, #ffce00 66%); }
+    .flag-it { background: linear-gradient(to right, #009246 33%, #fff 33%, #fff 66%, #ce2b37 66%); }
+    .flag-nl { background: linear-gradient(to bottom, #ae1c28 33%, #fff 33%, #fff 66%, #21468b 66%); }
+    .flag-es { background: linear-gradient(to bottom, #aa151b 25%, #f1bf00 25%, #f1bf00 75%, #aa151b 75%); }
+    .flag-fr { background: linear-gradient(to right, #0055a4 33%, #fff 33%, #fff 66%, #ef4135 66%); }
+    .time-input-card { background: var(--surface); border-radius: var(--radius-card); padding: 22px; box-shadow: var(--shadow-sm); margin: 14px 0; text-align: center; }
+    .time-input-card input[type="time"] { font-size: 36px; font-family: 'Playfair Display', Georgia, serif; font-weight: 700; color: var(--brand-navy); border: 2px solid var(--line); border-radius: 12px; padding: 14px 18px; width: 100%; max-width: 240px; text-align: center; }
+    .time-input-card input[type="time"]:focus { outline: 3px solid var(--brand-gold); outline-offset: 2px; border-color: var(--brand-navy); }
+    .ship-quick-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+    .ship-quick-row button { padding: 6px 12px; border-radius: var(--radius-pill); background: var(--bg); border: 1px solid var(--line); font: inherit; font-size: 13px; cursor: pointer; color: var(--ink-soft); }
+    .ship-quick-row button:hover { background: #efe9dc; }
+    .overview-hero { position: relative; aspect-ratio: 16/10; overflow: hidden; background: var(--brand-navy); }
+    .overview-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .overview-hero .ovh-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,42,58,0) 40%, rgba(15,42,58,0.85) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 18px; color: #fff; }
+    .overview-hero .ovh-theme { display: inline-flex; align-self: flex-start; background: rgba(255,255,255,0.92); color: var(--brand-navy); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: var(--radius-pill); margin-bottom: auto; }
+    .overview-hero .ovh-title { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 700; line-height: 1.1; margin: 8px 0 6px; }
+    .overview-hero .ovh-meta { font-size: 13px; opacity: 0.92; display: flex; gap: 8px; align-items: center; }
+    .overview-hero .ovh-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.6); display: inline-block; }
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+    .stat-box { background: var(--surface); border-radius: 12px; padding: 12px 8px; text-align: center; border: 1px solid var(--line); }
+    .stat-box .stat-num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 22px; color: var(--brand-navy); line-height: 1; }
+    .stat-box .stat-label { font-size: 11px; color: var(--ink-mute); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; }
+    .arrived-hero { padding: 60px 24px 30px; text-align: center; background: radial-gradient(ellipse at center top, rgba(214,161,74,0.15) 0%, transparent 60%), var(--bg); }
+    .arrived-icon { width: 92px; height: 92px; border-radius: 50%; margin: 0 auto 18px; background: var(--brand-gold); display: inline-flex; align-items: center; justify-content: center; font-size: 44px; color: var(--brand-navy); box-shadow: 0 12px 24px rgba(214,161,74,0.35); }
+    .arrived-h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 32px; line-height: 1.1; color: var(--brand-navy); margin: 0 0 8px; font-weight: 700; }
+    .arrived-sub { font-size: 16px; color: var(--ink-soft); margin: 0 0 24px; }
+    .mt-12 { margin-top: 12px; } .mt-16 { margin-top: 16px; } .mt-24 { margin-top: 24px; }
+    .hidden { display: none !important; }
+    a { color: var(--brand-teal); }
+    a:focus-visible { outline: 3px solid var(--brand-gold); outline-offset: 2px; }
+    .skip-link { position: absolute; top: -40px; left: 0; background: var(--brand-navy); color: #fff; padding: 8px 14px; text-decoration: none; z-index: 1000; }
+    .skip-link:focus { top: 0; }
+    .powered-by { text-align: center; padding: 24px 18px 32px; font-size: 11px; color: var(--ink-mute); letter-spacing: 0.08em; text-transform: uppercase; }
+    .powered-by strong { color: var(--brand-teal); font-weight: 700; }
+    .version-badge { display: inline-block; margin-left: 6px; padding: 1px 6px; background: rgba(214, 161, 74, 0.18); color: var(--brand-navy); border-radius: 4px; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; }
+    /* What's On card */
+    .whats-on-card { display: flex; gap: 0; align-items: stretch; background: var(--surface); border-radius: var(--radius-card); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 10px; cursor: pointer; text-decoration: none; color: inherit; border: none; font: inherit; text-align: left; width: 100%; transition: box-shadow 160ms ease, transform 160ms ease; }
+    .whats-on-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+    .whats-on-card:focus-visible { outline: 3px solid var(--brand-gold); outline-offset: 2px; }
+    .whats-on-card .woc-img { flex: 0 0 110px; min-height: 110px; background: var(--brand-navy); background-size: cover; background-position: center; }
+    .whats-on-card .woc-body { flex: 1; padding: 14px 16px; display: flex; flex-direction: column; justify-content: center; }
+    .whats-on-card .woc-when { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand-coral); margin: 0; }
+    .whats-on-card .woc-title { font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 700; color: var(--brand-navy); line-height: 1.15; margin: 4px 0 4px; }
+    .whats-on-card .woc-venue { font-size: 12px; color: var(--ink-mute); margin: 0; }
+    /* Help screen */
+    .help-hero { padding: 24px 18px 8px; }
+    .help-section { margin: 0 0 28px; }
+    .help-section p { font-size: 15px; color: var(--ink-soft); line-height: 1.55; margin: 0 0 12px; }
+    .help-section .lead { font-size: 16px; color: var(--ink-soft); margin: 0 0 12px; }
+    .help-call { display: flex; align-items: center; gap: 16px; padding: 18px; background: var(--surface); border-radius: 14px; border: 1.5px solid var(--line); text-decoration: none; color: var(--ink); margin-bottom: 10px; cursor: pointer; min-height: 60px; }
+    .help-call:hover { border-color: var(--brand-navy); }
+    .help-call:focus-visible { outline: 3px solid var(--brand-gold); outline-offset: 2px; }
+    .help-call-urgent { background: rgba(226,97,74,0.08); border-color: var(--brand-coral); }
+    .help-call-num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 30px; color: var(--brand-navy); min-width: 68px; line-height: 1; }
+    .help-call-urgent .help-call-num { color: var(--brand-coral); }
+    .help-call-label { font-size: 14px; color: var(--ink-soft); line-height: 1.3; }
+    .angela-card { background: linear-gradient(135deg, rgba(214,161,74,0.14), rgba(42,111,138,0.07)); border-radius: var(--radius-card); padding: 20px; border: 1px solid rgba(214,161,74,0.35); margin-bottom: 28px; }
+    .angela-card .h2 { margin-bottom: 10px; }
+    .angela-card p { font-size: 15px; color: var(--ink); line-height: 1.55; margin: 0; }
+    .help-list { list-style: none; padding: 0; margin: 12px 0 0; }
+    .help-list li { background: var(--surface); border: 1px solid var(--line); padding: 14px 16px; border-radius: 12px; margin-bottom: 8px; }
+    .help-list .hl-name { font-weight: 600; color: var(--brand-navy); display: block; font-size: 15px; }
+    .help-list .hl-detail { font-size: 13px; color: var(--ink-mute); display: block; margin-top: 4px; line-height: 1.4; }
+    /* Passport card on home */
+    .passport-card { background: linear-gradient(135deg, #fff7e6, #fbf3e0); border: 1px solid rgba(214, 161, 74, 0.4); border-radius: var(--radius-card); padding: 16px 18px; margin: 0 18px 14px; box-shadow: var(--shadow-sm); cursor: pointer; font: inherit; text-align: left; width: calc(100% - 36px); position: relative; overflow: hidden; }
+    .passport-card:focus-visible { outline: 3px solid var(--brand-gold); outline-offset: 2px; }
+    .passport-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); transition: transform 160ms ease, box-shadow 160ms ease; }
+    .passport-card-title { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 17px; color: var(--brand-navy); margin: 0 0 4px; }
+    .passport-card-sub { font-size: 12px; color: var(--ink-soft); margin: 0 0 12px; line-height: 1.4; }
+    .passport-stamps { display: flex; gap: 6px; justify-content: space-between; margin-bottom: 10px; }
+    .passport-stamp { width: 28px; height: 28px; border-radius: 50%; border: 2px dashed rgba(122, 92, 38, 0.4); background: rgba(255, 255, 255, 0.5); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 28px; color: rgba(15, 42, 58, 0.3); font-size: 13px; font-weight: 700; font-family: 'Playfair Display', serif; }
+    .passport-stamp.filled { background: var(--brand-gold); border: 2px solid var(--brand-navy); color: var(--brand-navy); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55); animation: stampPop 360ms ease; }
+    @keyframes stampPop { 0% { transform: scale(0.6) rotate(-10deg); } 60% { transform: scale(1.15) rotate(4deg); } 100% { transform: scale(1) rotate(0); } }
+    .passport-card-cta { font-size: 13px; color: var(--brand-teal); font-weight: 600; margin: 0; }
+    .passport-card-cta::after { content: ' →'; }
+    .passport-card.ready-claim { border-color: var(--brand-coral); }
+    .passport-card.ready-claim .passport-card-cta { color: var(--brand-coral); }
+    /* Passport screen */
+    .passport-hero { padding: 32px 24px 16px; text-align: center; background: linear-gradient(180deg, #fbf3e0 0%, var(--bg) 100%); }
+    .passport-hero-stamp { display: inline-flex; align-items: center; justify-content: center; margin: 0 auto 12px; width: 72px; height: 72px; border-radius: 50%; background: var(--brand-gold); color: var(--brand-navy); font-family: 'Playfair Display', serif; font-weight: 700; font-size: 34px; border: 3px solid var(--brand-navy); box-shadow: inset 0 0 0 3px rgba(255,255,255,0.4), 0 8px 20px rgba(214,161,74,0.3); }
+    .passport-count { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--brand-navy); font-size: 28px; margin: 14px 0 0; }
+    .stamp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 16px 0 8px; }
+    .stamp-tile { background: var(--surface); border-radius: 14px; border: 1px solid var(--line); padding: 14px 10px; text-align: center; }
+    .stamp-tile.filled { background: linear-gradient(135deg, rgba(214,161,74,0.18), rgba(255,255,255,0.7)); border-color: var(--brand-gold); }
+    .stamp-tile .st-icon { width: 44px; height: 44px; margin: 0 auto 8px; border-radius: 50%; border: 2px dashed var(--line-strong); display: flex; align-items: center; justify-content: center; color: var(--ink-mute); font-size: 18px; font-weight: 700; }
+    .stamp-tile.filled .st-icon { background: var(--brand-gold); border: 2px solid var(--brand-navy); color: var(--brand-navy); box-shadow: inset 0 0 0 3px rgba(255,255,255,0.4); }
+    .stamp-tile .st-name { font-size: 13px; font-weight: 600; color: var(--brand-navy); line-height: 1.2; }
+    .stamp-tile:not(.filled) .st-name { color: var(--ink-mute); }
+    .stamp-tile .st-status { font-size: 10px; color: var(--ink-mute); margin-top: 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .stamp-tile.filled .st-status { color: var(--brand-teal); font-weight: 600; }
+    /* Reward card */
+    .reward-card { background: var(--surface); border-radius: var(--radius-card); border: 1px solid var(--line); padding: 18px; margin-bottom: 12px; }
+    .reward-card.unlocked { background: linear-gradient(135deg, rgba(214,161,74,0.13), rgba(42,111,138,0.04)); border: 1.5px solid var(--brand-gold); }
+    .reward-card .rw-icon { font-size: 28px; line-height: 1; margin-bottom: 6px; }
+    .reward-card .rw-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mute); }
+    .reward-card.unlocked .rw-badge { color: var(--brand-coral); }
+    .reward-card .rw-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 17px; color: var(--brand-navy); margin: 4px 0 4px; line-height: 1.2; }
+    .reward-card .rw-sub { font-size: 13px; color: var(--ink-soft); margin: 0 0 8px; line-height: 1.4; }
+    .reward-card .rw-partner { font-size: 12px; color: var(--brand-teal); font-weight: 600; margin: 0; }
+    .reward-card .rw-claim { display: block; margin-top: 14px; background: var(--brand-gold); color: var(--brand-navy); font-weight: 700; padding: 12px 16px; border-radius: 10px; border: none; text-align: center; cursor: pointer; font: inherit; font-size: 14px; width: 100%; }
+    .reward-card .rw-claim:hover { background: #c89540; }
+    .reward-code { background: var(--brand-navy); color: #fff; padding: 14px; border-radius: 10px; margin-top: 12px; text-align: center; }
+    .reward-code-num { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 32px; letter-spacing: 0.14em; display: block; color: var(--brand-gold); }
+    .reward-code-instructions { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.85; margin-top: 6px; }
+    /* Stamp earned toast */
+    .stamp-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--brand-navy); color: #fff; padding: 14px 22px; border-radius: var(--radius-pill); box-shadow: var(--shadow-lg); font-weight: 600; font-size: 14px; z-index: 100; opacity: 0; transition: opacity 320ms ease, transform 320ms ease; pointer-events: none; display: flex; align-items: center; gap: 10px; max-width: 360px; }
+    .stamp-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .stamp-toast .st-toast-icon { width: 28px; height: 28px; border-radius: 50%; background: var(--brand-gold); color: var(--brand-navy); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+    /* Snow Trail */
+    .snow-hero { background: linear-gradient(135deg, #1B6FB8 0%, #0f2a3a 100%); }
+    .snow-theme { background: rgba(255,255,255,0.95) !important; color: #0f2a3a !important; }
+    .snow-prize-note { background: linear-gradient(135deg, rgba(27,111,184,0.10), rgba(214,161,74,0.10)); border: 1px solid rgba(27,111,184,0.3); border-radius: 14px; padding: 14px 16px; font-size: 14px; color: var(--ink); line-height: 1.45; margin: 8px 0 20px; }
+    .snow-route-card { display: flex; align-items: center; gap: 14px; padding: 16px 18px; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; cursor: pointer; font: inherit; text-align: left; width: 100%; margin-bottom: 10px; transition: border-color 160ms ease, transform 160ms ease; }
+    .snow-route-card:hover { border-color: var(--brand-navy); transform: translateY(-1px); }
+    .snow-route-card:focus-visible { outline: 3px solid var(--brand-gold); outline-offset: 2px; }
+    .snow-route-icon { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1B6FB8, #0f2a3a); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.25); }
+    .snow-route-card .src-body { flex: 1; line-height: 1.3; }
+    .snow-route-card .src-name { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 17px; color: var(--brand-navy); margin: 0 0 2px; }
+    .snow-route-card .src-meta { font-size: 12px; color: var(--ink-mute); margin: 0; }
+    .snow-route-card .src-progress { font-size: 11px; color: var(--brand-coral); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+    .snow-route-card::after { content: '→'; font-weight: 700; color: var(--brand-navy); font-size: 18px; flex-shrink: 0; }
+    .snow-route-card.done { background: linear-gradient(135deg, rgba(27,111,184,0.10), rgba(214,161,74,0.10)); border-color: var(--brand-gold); }
+    .snow-hero-stamp { background: linear-gradient(135deg, #1B6FB8, #0f2a3a); color: #fff; border-color: #0f2a3a; }
+    .snow-stamp-grid .stamp-tile.filled { background: linear-gradient(135deg, rgba(27,111,184,0.18), rgba(255,255,255,0.7)); border-color: #1B6FB8; }
+    .snow-stamp-grid .stamp-tile.filled .st-icon { background: #1B6FB8; color: #fff; border-color: #0f2a3a; }
+    .snow-stamp-grid .stamp-tile.final.filled .st-icon { background: var(--brand-gold); color: var(--brand-navy); }
+    .snow-stamp-grid .stamp-tile { cursor: pointer; transition: transform 120ms ease; border: 1px solid var(--line); }
+    .snow-stamp-grid .stamp-tile:hover { transform: translateY(-1px); }
+    .snow-found-banner { display: inline-flex; align-items: center; gap: 8px; background: #1B6FB8; color: #fff; padding: 6px 14px; border-radius: var(--radius-pill); font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+    .snow-answer { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font: inherit; font-size: 15px; color: var(--ink); resize: vertical; box-sizing: border-box; }
+    .snow-answer:focus { outline: 3px solid var(--brand-gold); outline-offset: 2px; border-color: var(--brand-navy); }
+    .snow-form { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+    .snow-label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--brand-navy); }
+    .snow-label input, .snow-label textarea { padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font: inherit; font-size: 15px; color: var(--ink); background: var(--surface); }
+    .snow-label input:focus, .snow-label textarea:focus { outline: 3px solid var(--brand-gold); outline-offset: 2px; border-color: var(--brand-navy); }
+    .snow-row { display: flex; gap: 10px; }
+    .snow-label-half { flex: 1; }
+    .snow-rating { border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+    .snow-rating legend { font-size: 13px; font-weight: 600; color: var(--brand-navy); padding: 0 6px; }
+    .snow-rating-row { display: flex; gap: 10px; justify-content: space-between; margin-top: 8px; }
+    .snow-rating-btn { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); font-size: 28px; cursor: pointer; transition: transform 120ms ease, border-color 120ms ease; }
+    .snow-rating-btn:hover { transform: scale(1.06); }
+    .snow-rating-btn.selected { border-color: var(--brand-navy); background: #fbf3e0; transform: scale(1.06); }
+    .snow-disclaimer { font-size: 11px; color: var(--ink-mute); line-height: 1.4; margin: 4px 0 6px; }
+    .snow-submit-cta { margin: 20px 0 0; padding: 16px; background: linear-gradient(135deg, rgba(27,111,184,0.10), rgba(214,161,74,0.14)); border-radius: 14px; border: 1.5px solid var(--brand-gold); }
+    .snow-submit-cta h3 { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 17px; color: var(--brand-navy); margin: 0 0 6px; }
+    .snow-submit-cta p { font-size: 13px; color: var(--ink-soft); margin: 0 0 12px; }
+    .snow-submit-cta .btn { margin: 0; }
+    /* Events pill (compact home strip) */
+    .events-pill { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 10px 16px 10px 14px; margin: 0 18px 0; width: calc(100% - 36px); cursor: pointer; font: inherit; text-align: left; transition: border-color 160ms ease, transform 160ms ease; }
+    .events-pill:hover { border-color: var(--brand-teal); transform: translateY(-1px); }
+    .events-pill:focus-visible { outline: 3px solid var(--brand-gold); outline-offset: 2px; }
+    .events-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand-coral); flex-shrink: 0; animation: pulse 1.6s ease-in-out infinite; }
+    .events-pill-text { flex: 1; font-size: 13px; color: var(--brand-navy); font-weight: 600; }
+    .events-pill-arrow { color: var(--brand-teal); font-weight: 700; font-size: 16px; }
+    /* Seasonal section visual distinction */
+    .seasonal-eyebrow { color: var(--brand-coral) !important; }
+    #seasonalSection { background: linear-gradient(180deg, rgba(27,111,184,0.06), transparent); border-radius: var(--radius-card); margin: 6px 18px 0; padding: 16px 0 8px !important; }
+    #seasonalSection .lead, #seasonalSection .h2, #seasonalSection .eyebrow { padding-left: 18px; padding-right: 18px; }
+    #seasonalSection > div#seasonalToursHost { padding: 0 18px; }
+    /* Demo reset link in footer */
+    .reset-link { margin-top: 12px; }
+    .reset-link a { font-size: 11px; color: var(--ink-mute); text-decoration: underline; letter-spacing: 0.05em; }
+    /* Snow submit inline error */
+    .snow-error { background: rgba(192, 57, 43, 0.08); border: 1px solid rgba(192, 57, 43, 0.3); border-radius: 10px; padding: 10px 14px; color: var(--bad); font-size: 13px; font-weight: 600; margin: 0 0 12px; }
+    .snow-error::before { content: '⚠ '; }
+    /* Events screen list */
+    .events-list-card { display: flex; gap: 12px; background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 12px; text-decoration: none; color: inherit; border: none; font: inherit; text-align: left; width: 100%; cursor: pointer; transition: box-shadow 160ms ease; }
+    .events-list-card:hover { box-shadow: var(--shadow-md); }
+    .events-list-card .el-img { flex: 0 0 96px; min-height: 96px; background: var(--brand-navy); background-size: cover; background-position: center; }
+    .events-list-card .el-body { flex: 1; padding: 12px 14px; display: flex; flex-direction: column; justify-content: center; }
+    .events-list-card .el-when { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brand-coral); margin: 0; }
+    .events-list-card .el-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--brand-navy); line-height: 1.2; margin: 4px 0 4px; }
+    .events-list-card .el-venue { font-size: 12px; color: var(--ink-mute); margin: 0; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <main id="main" class="phone" aria-live="polite">
+
+    <section class="screen active" data-screen="welcome" aria-label="Welcome">
+      <div class="welcome-hero">
+        <div class="vs-logo" aria-label="Visit Southampton">Visit Southampton<span>Cruise Day Out</span></div>
+        <div style="flex: 1;"></div>
+        <p class="welcome-eyebrow" data-i18n="welcome.eyebrow">Welcome to our wonderful city</p>
+        <h1 class="welcome-title" data-i18n="welcome.title">Southampton awaits.</h1>
+        <p class="welcome-sub" data-i18n="welcome.sub">Tap a Loop, pick a tour, and discover the city before your ship sails.</p>
+      </div>
+      <div class="welcome-cta-row">
+        <button class="btn btn-primary btn-arrow" data-action="go-language" data-i18n="welcome.start">Let's start</button>
+        <button class="btn btn-ghost" data-action="skip-to-home" data-i18n="welcome.skip">I've used this before. Skip setup</button>
+      </div>
+      <p class="welcome-tagline"><strong data-i18n="welcome.taglineStrong">No download needed.</strong> <span data-i18n="welcome.tagline">This is the app, running in your browser, ready to go.</span></p>
+      <div class="welcome-foot"><span data-i18n="poweredBy">Powered by</span> <strong>Superspree · Loop</strong> <span class="version-badge">v1.0.5</span></div>
+    </section>
+
+    <section class="screen" data-screen="language" aria-label="Choose your language">
+      <div class="topbar">
+        <button class="icon-btn" aria-label="Back" data-action="back">←</button>
+        <div class="vs-logo">Visit Southampton<span>Cruise Day Out</span></div>
+        <span style="width: 44px;"></span>
+      </div>
+      <div class="screen-pad">
+        <p class="eyebrow" data-i18n="lang.eyebrow">Step 1 of 2</p>
+        <h2 class="h1" data-i18n="lang.title">Choose your language</h2>
+        <p class="lead" data-i18n="lang.sub">We've guessed from your phone. Change it any time from the globe icon.</p>
+        <div class="lang-grid" id="langGrid">
+          <button class="lang-card" data-lang="en"><span class="lang-flag flag-en" aria-hidden="true"></span><span class="lang-meta"><span class="lang-name">English</span><span class="lang-en">English</span></span></button>
+          <button class="lang-card" data-lang="de"><span class="lang-flag flag-de" aria-hidden="true"></span><span class="lang-meta"><span class="lang-name">Deutsch</span><span class="lang-en">German</span></span></button>
+          <button class="lang-card" data-lang="it" disabled><span class="lang-flag flag-it" aria-hidden="true"></span><span class="lang-meta"><span class="lang-name">Italiano</span><span class="lang-en">Italian · v1.1</span></span></button>
+          <button class="lang-card" data-lang="nl" disabled><span class="lang-flag flag-nl" aria-hidden="true"></span><span class="lang-meta"><span class="lang-name">Nederlands</span><span class="lang-en">Dutch · v1.1</span></span></button>
+          <button class="lang-card" data-lang="es" disabled><span class="lang-flag flag-es" aria-hidden="true"></span><span class="lang-meta"><span class="lang-name">Español</span><span class="lang-en">Spanish · v1.1</span></span></button>
+          <button class="lang-card" data-lang="fr" disabled><span class="lang-flag flag-fr" aria-hidden="true"></span><span class="lang-meta"><span class="lang-name">Français</span><span class="lang-en">French · v1.1</span></span></button>
+        </div>
+        <button class="btn btn-primary btn-arrow mt-16" data-action="go-ship-time" data-i18n="common.continue">Continue</button>
+        <div style="height: 1px; background: var(--line); margin: 24px 0;"></div>
+        <p class="eyebrow" data-i18n="lang.resetEyebrow">Start fresh</p>
+        <h3 class="h2" data-i18n="lang.resetTitle">Reset the app</h3>
+        <p class="lead" data-i18n="lang.resetSub">Clears your saved language, all aboard time and tour progress. Useful when handing the phone to someone else.</p>
+        <button class="btn btn-secondary" data-action="reset-app" data-i18n="lang.resetCta">Reset to welcome</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="ship-time" aria-label="Set your ship's all aboard time">
+      <div class="topbar">
+        <button class="icon-btn" aria-label="Back" data-action="back">←</button>
+        <div class="vs-logo">Visit Southampton<span>Cruise Day Out</span></div>
+        <span style="width: 44px;"></span>
+      </div>
+      <div class="screen-pad">
+        <p class="eyebrow" data-i18n="ship.eyebrow">Step 2 of 2</p>
+        <h2 class="h1" data-i18n="ship.title">When's your all aboard?</h2>
+        <p class="lead" data-i18n="ship.sub">We'll keep an eye on the time and gently remind you when it's time to head back to the ship.</p>
+        <div class="time-input-card">
+          <input type="time" id="shipTimeInput" value="16:30" />
+          <div class="ship-quick-row">
+            <button data-quick="15:30">15:30</button>
+            <button data-quick="16:00">16:00</button>
+            <button data-quick="16:30">16:30</button>
+            <button data-quick="17:00">17:00</button>
+            <button data-quick="17:30">17:30</button>
+            <button data-quick="18:00">18:00</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-arrow" data-action="confirm-ship-time" data-i18n="ship.confirm">That's right</button>
+        <button class="btn btn-ghost" data-action="skip-ship-time" data-i18n="ship.skip">I'll set this later</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="home" aria-label="Home">
+      <div class="topbar">
+        <div class="vs-logo">Visit Southampton<span>Cruise Day Out</span></div>
+        <div class="topbar-actions">
+          <button class="countdown hidden" id="countdownBtn" aria-label="Time until all aboard"><span class="dot"></span><span id="countdownText">--:--</span></button>
+          <button class="icon-btn" aria-label="Help and safe spots" data-action="open-help" title="Help and safe spots">🛟</button>
+          <button class="icon-btn" aria-label="Language" data-action="open-language" title="Change language">🌐</button>
+        </div>
+      </div>
+      <div class="yah" id="yahBanner">
+        <div class="yah-icon" aria-hidden="true">📍</div>
+        <div class="yah-text">
+          <p class="yah-eyebrow" data-i18n="home.youAreHere">You are here</p>
+          <div class="yah-name" id="currentHubName">Cruise Terminal</div>
+        </div>
+      </div>
+
+      <div id="passportCardHost"></div>
+
+      <button class="events-pill" data-action="open-events" id="eventsPillHost">
+        <span class="events-pill-dot" aria-hidden="true"></span>
+        <span class="events-pill-text" id="eventsPillText">1 event on today</span>
+        <span class="events-pill-arrow" aria-hidden="true">→</span>
+      </button>
+
+      <div class="screen-pad" style="padding-top: 14px;">
+        <p class="eyebrow" data-i18n="home.eyebrow1">Walk to the city</p>
+        <h2 class="h2" data-i18n="home.walkTitle">Quickest route in</h2>
+      </div>
+      <button class="walk-hero" data-action="start-walk-to-city">
+        <p class="we" data-i18n="home.walkEyebrow">QE2 Mile · direct</p>
+        <p class="wt" id="walkHeroTitle">Walk to the Old Town</p>
+        <p class="wm"><span id="walkHeroMins">≈ 18 min walk</span><span class="dot"></span><span id="walkHeroStops">5 turn by turn steps</span></p>
+      </button>
+      <div class="screen-pad" style="padding-top: 4px;">
+        <p class="eyebrow" data-i18n="home.eyebrow2">Discover Southampton</p>
+        <h2 class="h2" data-i18n="home.toursTitle">Pick a theme</h2>
+        <p class="lead" data-i18n="home.toursSub">Three curated walks. Pick one and we'll guide you stop by stop.</p>
+        <div id="tourCardsHost"></div>
+      </div>
+      <div class="screen-pad" style="padding-top: 4px;" id="seasonalSection">
+        <p class="eyebrow seasonal-eyebrow" data-i18n="home.seasonalEyebrow">On now</p>
+        <h2 class="h2" data-i18n="home.seasonalTitle">Seasonal trail</h2>
+        <p class="lead" data-i18n="home.seasonalSub">Special trails available for a limited time.</p>
+        <div id="seasonalToursHost"></div>
+      </div>
+      <div class="powered-by">
+        <span data-i18n="poweredBy">Powered by</span> <strong>Superspree · Loop</strong> <span class="version-badge">v1.0.5</span>
+        <div class="reset-link"><a href="?reset=1" data-i18n="home.resetDemo">Reset for next demo</a></div>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="tour-overview" aria-label="Tour overview">
+      <div class="topbar transparent" style="position: absolute; left: 0; right: 0; background: linear-gradient(180deg, rgba(0,0,0,0.4), transparent); z-index: 5;">
+        <button class="icon-btn" aria-label="Back" data-action="back" style="background: rgba(255,255,255,0.92); border: none;">←</button>
+        <span style="width: 44px;"></span>
+        <button class="icon-btn" aria-label="Language" data-action="open-language" style="background: rgba(255,255,255,0.92); border: none;">🌐</button>
+      </div>
+      <div class="overview-hero">
+        <img id="overviewHeroImg" src="" alt="" />
+        <div class="ovh-overlay">
+          <span class="ovh-theme" id="overviewTheme">History</span>
+          <h2 class="ovh-title" id="overviewTitle">Titanic to Tudor</h2>
+          <p class="ovh-meta"><span id="overviewMins">≈ 75 min</span><span class="dot"></span><span id="overviewStopsLabel">6 stops</span><span class="dot"></span><span id="overviewLength">2.3 km</span></p>
+        </div>
+      </div>
+      <div class="screen-pad">
+        <p class="lead" id="overviewBlurb"></p>
+        <div class="stat-row">
+          <div class="stat-box"><div class="stat-num" id="statStops">6</div><div class="stat-label" data-i18n="overview.stops">Stops</div></div>
+          <div class="stat-box"><div class="stat-num" id="statMins">75</div><div class="stat-label" data-i18n="overview.minutes">Minutes</div></div>
+          <div class="stat-box"><div class="stat-num" id="statKm">2.3</div><div class="stat-label" data-i18n="overview.km">km walk</div></div>
+        </div>
+        <h3 class="h2 mt-24" data-i18n="overview.whatYoullSee">What you'll see</h3>
+        <ol class="stop-list" id="overviewStopList"></ol>
+        <button class="btn btn-primary btn-arrow mt-16" data-action="start-tour" data-i18n="overview.start">Start the tour</button>
+        <button class="btn btn-ghost" data-action="back" data-i18n="overview.cancel">Choose a different tour</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="step" aria-label="Walking directions">
+      <div class="topbar transparent" style="position: absolute; left: 0; right: 0; background: linear-gradient(180deg, rgba(0,0,0,0.45), transparent); z-index: 5;">
+        <button class="icon-btn" aria-label="Exit tour" data-action="exit-tour" style="background: rgba(255,255,255,0.92); border: none;">←</button>
+        <button class="countdown hidden" id="countdownBtn2" aria-label="Time until all aboard"><span class="dot"></span><span class="ct2text">--:--</span></button>
+        <button class="icon-btn" aria-label="Language" data-action="open-language" style="background: rgba(255,255,255,0.92); border: none;">🌐</button>
+      </div>
+      <div class="step-hero">
+        <img id="stepHeroImg" src="" alt="" />
+        <span class="step-eyebrow" id="stepEyebrow">Stop 1 of 6</span>
+      </div>
+      <div class="step-body">
+        <div class="step-progress" id="stepProgress"></div>
+        <h2 class="h1" id="stepTitle"></h2>
+        <p class="lead" id="stepCopy"></p>
+        <div class="step-instruction">
+          <div class="step-arrow" aria-hidden="true">→</div>
+          <div class="step-text" id="stepDirection"></div>
+        </div>
+        <div class="minimap">
+          <div class="minimap-title"><span data-i18n="step.routeMap">Your route</span> <span id="minimapProgress">1 / 6</span></div>
+          <svg id="minimapSvg" viewBox="0 0 320 80" aria-hidden="true"></svg>
+        </div>
+      </div>
+      <div class="step-actions">
+        <button class="btn btn-secondary" data-action="prev-step" aria-label="Previous stop">←</button>
+        <button class="btn btn-primary btn-arrow" data-action="next-step" data-i18n="step.next">I'm here. What's next?</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="return-to-ship" aria-label="Walking back to your ship">
+      <div class="topbar">
+        <button class="icon-btn" aria-label="Back" data-action="back">←</button>
+        <div class="vs-logo">Visit Southampton<span>Cruise Day Out</span></div>
+        <span style="width: 44px;"></span>
+      </div>
+      <div class="screen-pad">
+        <p class="eyebrow" style="color: var(--brand-coral);" data-i18n="return.eyebrow">Heading back</p>
+        <h2 class="h1" data-i18n="return.title">Walk back to your ship</h2>
+        <p class="lead" id="returnLead">From <strong id="returnFrom">Bargate</strong> · ≈ <span id="returnMins">14</span> min walk · <span id="returnKm">1.1</span> km</p>
+        <div class="card">
+          <div class="card-pad">
+            <h3 class="h2" data-i18n="return.directionsTitle">Step by step</h3>
+            <ol class="stop-list" id="returnSteps"></ol>
+          </div>
+        </div>
+        <button class="btn btn-coral btn-arrow" data-action="confirm-returned" data-i18n="return.confirm">I'm back at the terminal</button>
+        <button class="btn btn-ghost" data-action="back" data-i18n="return.notYet">Not yet, keep exploring</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="arrived" aria-label="Arrived">
+      <div class="arrived-hero">
+        <div class="arrived-icon" aria-hidden="true">✓</div>
+        <h1 class="arrived-h1" id="arrivedTitle">Tour complete</h1>
+        <p class="arrived-sub" id="arrivedSub"></p>
+      </div>
+      <div class="screen-pad">
+        <button class="btn btn-primary" data-action="go-home" data-i18n="arrived.exploreMore">Explore another tour</button>
+        <button class="btn btn-secondary" data-action="go-return" data-i18n="arrived.headBack">Head back to the ship</button>
+      </div>
+      <div class="powered-by"><span data-i18n="poweredBy">Powered by</span> <strong>Superspree · Loop</strong> <span class="version-badge">v1.0.5</span></div>
+    </section>
+
+    <section class="screen" data-screen="help" aria-label="Help and safe spots">
+      <div class="topbar">
+        <button class="icon-btn" aria-label="Back" data-action="back">←</button>
+        <div class="vs-logo">Visit Southampton<span>Cruise Day Out</span></div>
+        <span style="width: 44px;"></span>
+      </div>
+      <div class="help-hero">
+        <p class="eyebrow" style="color: var(--brand-teal);" data-i18n="help.eyebrow">Help & safe spots</p>
+        <h2 class="h1" data-i18n="help.title">You're never far from someone friendly.</h2>
+        <p class="lead" data-i18n="help.sub">Southampton's a welcoming city. If you need a hand, here's how to find it.</p>
+      </div>
+      <div class="screen-pad" style="padding-top: 6px;">
+        <div class="help-section">
+          <p class="eyebrow" style="color: var(--brand-coral);" data-i18n="help.emergencyEyebrow">If it's urgent</p>
+          <h3 class="h2" data-i18n="help.emergencyTitle">Call for help</h3>
+          <a href="tel:999" class="help-call help-call-urgent">
+            <span class="help-call-num">999</span>
+            <span class="help-call-label" data-i18n="help.call999">Emergency. Police, fire, ambulance.</span>
+          </a>
+          <a href="tel:101" class="help-call">
+            <span class="help-call-num">101</span>
+            <span class="help-call-label" data-i18n="help.call101">Hampshire Police, non emergency.</span>
+          </a>
+        </div>
+
+        <div class="angela-card">
+          <p class="eyebrow" style="color: var(--brand-navy);" data-i18n="help.angelaEyebrow">Ask for Angela</p>
+          <h3 class="h2" data-i18n="help.angelaTitle">In any pub or bar, ask for "Angela"</h3>
+          <p data-i18n="help.angelaSub">Southampton pubs and bars take part in the Ask for Angela scheme. If you feel uncomfortable, unsafe, or just want to leave quietly, walk up to any member of bar staff and ask for "Angela". They'll discreetly help you slip away, call a taxi, or stay with you until you're sorted. No questions, no fuss.</p>
+        </div>
+
+        <div class="help-section">
+          <p class="eyebrow" data-i18n="help.spotsEyebrow">Friendly faces</p>
+          <h3 class="h2" data-i18n="help.spotsTitle">Safe spots near you</h3>
+          <p class="lead" data-i18n="help.spotsSub">Staffed venues where someone can help, lend a phone, or just give you a glass of water.</p>
+          <ul class="help-list" id="safeSpotsList"></ul>
+        </div>
+
+        <div class="help-section">
+          <p class="eyebrow" data-i18n="help.duskEyebrow">Walking back later</p>
+          <h3 class="h2" data-i18n="help.duskTitle">After dark, stick to the busy streets</h3>
+          <p data-i18n="help.duskSub">Above Bar Street and the High Street stay lit and busy until late. After sunset, we'd suggest heading back through WestQuay's main concourse rather than along Western Esplanade.</p>
+        </div>
+
+        <div class="help-section">
+          <p class="eyebrow" data-i18n="help.lostEyebrow">Lost or stranded</p>
+          <h3 class="h2" data-i18n="help.lostTitle">Getting back to your ship</h3>
+          <p data-i18n="help.lostSub">Licensed black taxis queue at the WestQuay south entrance and beside the Civic Centre. Your cruise line keeps a port agent on duty all day at the terminal. Their number is in your daily programme, worth a photo on your phone before you set off.</p>
+        </div>
+
+        <div class="help-section">
+          <p class="eyebrow" data-i18n="help.buddyEyebrow">Travelling with company</p>
+          <h3 class="h2" data-i18n="help.buddyTitle">Share your plan</h3>
+          <p data-i18n="help.buddySub">Send the link to this app to anyone in your party. You'll all see the same tour, the same stops, and the same return route, so it's easy to meet at the next Loop if you get separated.</p>
+        </div>
+      </div>
+      <div class="powered-by"><span data-i18n="poweredBy">Powered by</span> <strong>Superspree · Loop</strong> <span class="version-badge">v1.0.5</span></div>
+    </section>
+
+    <section class="screen" data-screen="passport" aria-label="Your Cruise Day Passport">
+      <div class="topbar">
+        <button class="icon-btn" aria-label="Back" data-action="back">←</button>
+        <div class="vs-logo">Visit Southampton<span>Cruise Day Out</span></div>
+        <span style="width: 44px;"></span>
+      </div>
+      <div class="passport-hero">
+        <div class="passport-hero-stamp" aria-hidden="true">✓</div>
+        <h2 class="h1" data-i18n="passport.title">Your Cruise Day Passport</h2>
+        <p class="lead" data-i18n="passport.sub">Collect a stamp at every Loop. Earn local rewards along the way.</p>
+        <p class="passport-count" id="passportCount">0 / 7</p>
+      </div>
+      <div class="screen-pad">
+        <h3 class="h2" data-i18n="passport.stampsTitle">Your stamps</h3>
+        <div class="stamp-grid" id="passportStampGrid"></div>
+
+        <h3 class="h2 mt-24" data-i18n="passport.rewardsTitle">Your rewards</h3>
+        <p class="lead" data-i18n="passport.rewardsSub">Three local partners have something waiting for you. Collect the stamps, show the code, enjoy.</p>
+        <div id="passportRewardsHost"></div>
+      </div>
+      <div class="powered-by"><span data-i18n="poweredBy">Powered by</span> <strong>Superspree · Loop</strong> <span class="version-badge">v1.0.5</span></div>
+    </section>
+
+    <section class="screen" data-screen="events" aria-label="Whats on today">
+      <div class="topbar">
+        <button class="icon-btn" aria-label="Back" data-action="back">←</button>
+        <div class="vs-logo">Visit Southampton<span>Whats on today</span></div>
+        <span style="width: 44px;"></span>
+      </div>
+      <div class="screen-pad">
+        <p class="eyebrow" data-i18n="events.eyebrow">Happening today</p>
+        <h2 class="h1" data-i18n="events.title">Whats on in Southampton</h2>
+        <p class="lead" data-i18n="events.sub">Live from Visit Southampton. Tap any event to read more on their site.</p>
+        <div id="eventsListHost"></div>
+        <a class="btn btn-secondary mt-16" href="https://www.visitsouthampton.co.uk/events/" target="_blank" rel="noopener noreferrer" data-i18n="events.viewAll">See all events on Visit Southampton</a>
+      </div>
+      <div class="powered-by"><span data-i18n="poweredBy">Powered by</span> <strong>Superspree · Loop</strong> <span class="version-badge">v1.0.5</span></div>
+    </section>
+
+    <section class="screen" data-screen="snow-overview" aria-label="Snow Windows Trail">
+      <div class="topbar transparent" style="position: absolute; left: 0; right: 0; background: linear-gradient(180deg, rgba(0,0,0,0.4), transparent); z-index: 5;">
+        <button class="icon-btn" aria-label="Back" data-action="back" style="background: rgba(255,255,255,0.92); border: none;">←</button>
+        <span style="width: 44px;"></span>
+        <button class="icon-btn" aria-label="Language" data-action="open-language" style="background: rgba(255,255,255,0.92); border: none;">🌐</button>
+      </div>
+      <div class="overview-hero snow-hero">
+        <img id="snowOverviewImg" src="" alt="" />
+        <div class="ovh-overlay">
+          <span class="ovh-theme snow-theme">❄ <span data-i18n="snow.seasonal">Seasonal</span></span>
+          <h2 class="ovh-title" id="snowOverviewTitle">Snow Windows Trail</h2>
+          <p class="ovh-meta" id="snowOverviewDates"></p>
+        </div>
+      </div>
+      <div class="screen-pad">
+        <p class="lead" id="snowOverviewBlurb"></p>
+        <p class="snow-prize-note" id="snowOverviewPrize"></p>
+        <h3 class="h2 mt-24" data-i18n="snow.pickRoute">Pick your route</h3>
+        <p class="lead" data-i18n="snow.pickRouteSub">Two looped walks, both ending at SeaCity Museum where you submit your trail for the free prize.</p>
+        <div id="snowRoutePickerHost"></div>
+      </div>
+      <div class="powered-by"><span data-i18n="poweredBy">Powered by</span> <strong>Superspree · Loop</strong> <span class="version-badge">v1.0.5</span></div>
+    </section>
+
+    <section class="screen" data-screen="snow-route" aria-label="Your Snow Trail route">
+      <div class="topbar">
+        <button class="icon-btn" aria-label="Back to route picker" data-action="snow-back-to-overview">←</button>
+        <div class="vs-logo">Visit Southampton<span>Snow Trail</span></div>
+        <span style="width: 44px;"></span>
+      </div>
+      <div class="passport-hero">
+        <div class="passport-hero-stamp snow-hero-stamp" aria-hidden="true" id="snowRouteIcon">❄</div>
+        <h2 class="h1" id="snowRouteName">Snowflake Route</h2>
+        <p class="lead" id="snowRouteMeta"></p>
+        <p class="passport-count" id="snowRouteCount">0 / 12</p>
+      </div>
+      <div class="screen-pad">
+        <h3 class="h2" data-i18n="snow.stopsTitle">All your windows</h3>
+        <p class="lead" data-i18n="snow.stopsSub">Tap a Loop at each window to collect your stamp. Type what you see, or leave it blank.</p>
+        <div class="stamp-grid snow-stamp-grid" id="snowStopGrid"></div>
+        <div id="snowSubmitCtaHost"></div>
+      </div>
+      <div class="powered-by"><span data-i18n="poweredBy">Powered by</span> <strong>Superspree · Loop</strong> <span class="version-badge">v1.0.5</span></div>
+    </section>
+
+    <section class="screen" data-screen="snow-stop" aria-label="Snow Trail stop">
+      <div class="topbar">
+        <button class="icon-btn" aria-label="Back to route" data-action="back">←</button>
+        <div class="vs-logo">Visit Southampton<span>Snow Trail</span></div>
+        <span style="width: 44px;"></span>
+      </div>
+      <div class="screen-pad">
+        <p class="eyebrow" id="snowStopNumber">Window 1 of 12</p>
+        <h2 class="h1" id="snowStopName">The Mayflower Village</h2>
+        <p class="lead" id="snowStopAddress">Commercial Road, SO15 1GE</p>
+
+        <div class="snow-found-banner" id="snowStopFoundBanner" style="display:none;">
+          <span aria-hidden="true">✓</span>
+          <span data-i18n="snow.foundBanner">You found this one</span>
+        </div>
+
+        <div class="card">
+          <div class="card-pad">
+            <h3 class="h2" data-i18n="snow.promptTitle">What can you see?</h3>
+            <p class="lead" data-i18n="snow.promptSub">Look up at the window. Write a word or two about the artwork. Or leave it blank and just collect your stamp.</p>
+            <textarea id="snowStopAnswer" class="snow-answer" rows="3" placeholder="e.g. a snowman with a top hat"></textarea>
+            <button class="btn btn-primary btn-arrow mt-12" data-action="mark-snow-found" data-i18n="snow.markFound">I found it</button>
+            <button class="btn btn-ghost" data-action="back" data-i18n="snow.notYet">Not yet, take me back</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="snow-submit" aria-label="Submit your Snow Trail">
+      <div class="topbar">
+        <button class="icon-btn" aria-label="Back" data-action="back">←</button>
+        <div class="vs-logo">Visit Southampton<span>Snow Trail</span></div>
+        <span style="width: 44px;"></span>
+      </div>
+      <div id="snowSubmitFormHost">
+        <div class="screen-pad">
+          <p class="eyebrow" style="color: var(--brand-coral);" data-i18n="snow.submitEyebrow">Almost done</p>
+          <h2 class="h1" data-i18n="snow.submitTitle">Claim your prize</h2>
+          <p class="lead" data-i18n="snow.submitSub">Pop into SeaCity Museum and show the code on the next screen to claim your free gift. Pop your details below to also enter the Ultimate Winter Prize draw.</p>
+          <div class="snow-form">
+            <label class="snow-label"><span data-i18n="snow.fName">Your name</span><input type="text" id="snowFieldName" autocomplete="name" /></label>
+            <label class="snow-label"><span data-i18n="snow.fEmail">Email</span><input type="email" id="snowFieldEmail" autocomplete="email" /></label>
+            <label class="snow-label"><span data-i18n="snow.fPostcode">Home postcode</span><input type="text" id="snowFieldPostcode" autocomplete="postal-code" /></label>
+            <div class="snow-row">
+              <label class="snow-label snow-label-half"><span data-i18n="snow.fAdults">Adults</span><input type="number" id="snowFieldAdults" min="0" max="20" value="2" /></label>
+              <label class="snow-label snow-label-half"><span data-i18n="snow.fChildren">Children</span><input type="number" id="snowFieldChildren" min="0" max="20" value="0" /></label>
+            </div>
+            <fieldset class="snow-rating">
+              <legend data-i18n="snow.fRating">Did you enjoy the trail?</legend>
+              <div class="snow-rating-row">
+                <button type="button" class="snow-rating-btn" data-rating="4" aria-label="Loved it">😀</button>
+                <button type="button" class="snow-rating-btn" data-rating="3" aria-label="Enjoyed it">🙂</button>
+                <button type="button" class="snow-rating-btn" data-rating="2" aria-label="It was OK">😐</button>
+                <button type="button" class="snow-rating-btn" data-rating="1" aria-label="Not for me">😞</button>
+              </div>
+            </fieldset>
+            <label class="snow-label"><span data-i18n="snow.fComments">Anything to share?</span><textarea id="snowFieldComments" rows="3"></textarea></label>
+            <p class="snow-disclaimer" data-i18n="snow.disclaimer">By submitting you agree to Visit Southampton storing your details for the prize draw. Winner announced in January.</p>
+            <div class="snow-error" id="snowSubmitError" role="alert" style="display:none;"></div>
+            <button class="btn btn-primary btn-arrow" data-action="submit-snow" data-i18n="snow.submitCta">Submit my trail</button>
+            <button class="btn btn-ghost" data-action="submit-snow-anon" data-i18n="snow.submitSkip">Just give me my code</button>
+          </div>
+        </div>
+      </div>
+      <div id="snowConfirmationHost" style="display:none;">
+        <div class="arrived-hero" style="background: radial-gradient(ellipse at center top, rgba(214,161,74,0.18) 0%, transparent 60%), var(--bg);">
+          <div class="arrived-icon" aria-hidden="true">❄</div>
+          <h1 class="arrived-h1" data-i18n="snow.confTitle">Trail complete</h1>
+          <p class="arrived-sub" data-i18n="snow.confSub">Show this code to staff at the SeaCity Museum desk to claim your free gift.</p>
+        </div>
+        <div class="screen-pad">
+          <div class="reward-code" style="margin: 0 0 20px;">
+            <span class="reward-code-num" id="snowSubmissionCode">SNOW-0000</span>
+            <div class="reward-code-instructions" data-i18n="snow.confCodeNote">Valid until 4 January. One gift per submission.</div>
+          </div>
+          <button class="btn btn-primary" data-action="go-home" data-i18n="snow.confHome">Back to home</button>
+        </div>
+      </div>
+      <div class="powered-by"><span data-i18n="poweredBy">Powered by</span> <strong>Superspree · Loop</strong> <span class="version-badge">v1.0.5</span></div>
+    </section>
+
+    <div class="stamp-toast" id="stampToast" aria-live="polite" role="status"></div>
+    <div class="floating-return hidden" id="floatingReturn">
+      <button data-action="go-return" aria-label="Return to ship">⛴ <span data-i18n="floating.return">Back to ship</span></button>
+    </div>
+  </main>
+
+  <script>
+    const I18N = {
+      en: {
+        'welcome.eyebrow': 'Welcome to our wonderful city',
+        'welcome.title': 'Southampton awaits.',
+        'welcome.sub': "Tap a Loop, pick a tour, and discover the city before your ship sails.",
+        'welcome.start': "Let's start",
+        'welcome.skip': "I've used this before. Skip setup",
+        'welcome.taglineStrong': 'No download needed.',
+        'welcome.tagline': 'This is the app, running in your browser, ready to go.',
+        'poweredBy': 'Powered by',
+        'lang.eyebrow': 'Step 1 of 2',
+        'lang.title': 'Choose your language',
+        'lang.sub': "We've guessed from your phone. Change it any time from the globe icon.",
+        'lang.resetEyebrow': 'Start fresh',
+        'lang.resetTitle': 'Reset the app',
+        'lang.resetSub': 'Clears your saved language, all aboard time and tour progress. Useful when handing the phone to someone else.',
+        'lang.resetCta': 'Reset to welcome',
+        'home.eyebrow3': 'Happening today',
+        'home.whatsOnTitle': "What's on in Southampton",
+        'home.whatsOnSub': 'Live from Visit Southampton. Tap any event to read more.',
+        'home.whatsOnAll': 'See all events',
+        'home.seasonalEyebrow': 'On now',
+        'home.seasonalTitle': 'Seasonal trail',
+        'home.seasonalSub': 'Special trails available for a limited time.',
+        'home.resetDemo': 'Reset for next demo',
+        'events.eyebrow': 'Happening today',
+        'events.title': "What's on in Southampton",
+        'events.sub': 'Live from Visit Southampton. Tap any event to read more on their site.',
+        'events.viewAll': 'See all events on Visit Southampton',
+        'events.pillOne': '1 event on today',
+        'events.pillMany': '{n} events on today',
+        'snow.errName': 'Please add your name so we can contact you about the prize draw.',
+        'snow.errEmail': 'That email address looks off. Try again, or use the "Just give me my code" button if you only want the SeaCity gift.',
+        'help.eyebrow': 'Help & safe spots',
+        'help.title': "You're never far from someone friendly.",
+        'help.sub': "Southampton's a welcoming city. If you need a hand, here's how to find it.",
+        'help.emergencyEyebrow': "If it's urgent",
+        'help.emergencyTitle': 'Call for help',
+        'help.call999': 'Emergency. Police, fire, ambulance.',
+        'help.call101': 'Hampshire Police, non emergency.',
+        'help.angelaEyebrow': 'Ask for Angela',
+        'help.angelaTitle': 'In any pub or bar, ask for "Angela"',
+        'help.angelaSub': "Southampton pubs and bars take part in the Ask for Angela scheme. If you feel uncomfortable, unsafe, or just want to leave quietly, walk up to any member of bar staff and ask for \"Angela\". They'll discreetly help you slip away, call a taxi, or stay with you until you're sorted. No questions, no fuss.",
+        'help.spotsEyebrow': 'Friendly faces',
+        'help.spotsTitle': 'Safe spots near you',
+        'help.spotsSub': 'Staffed venues where someone can help, lend a phone, or just give you a glass of water.',
+        'help.duskEyebrow': 'Walking back later',
+        'help.duskTitle': 'After dark, stick to the busy streets',
+        'help.duskSub': "Above Bar Street and the High Street stay lit and busy until late. After sunset, we'd suggest heading back through WestQuay's main concourse rather than along Western Esplanade.",
+        'help.lostEyebrow': 'Lost or stranded',
+        'help.lostTitle': 'Getting back to your ship',
+        'help.lostSub': 'Licensed black taxis queue at the WestQuay south entrance and beside the Civic Centre. Your cruise line keeps a port agent on duty all day at the terminal. Their number is in your daily programme, worth a photo on your phone before you set off.',
+        'help.buddyEyebrow': 'Travelling with company',
+        'help.buddyTitle': 'Share your plan',
+        'help.buddySub': "In a group? Text or AirDrop the app link to anyone in your party. Once they open it, they'll see the same tours, the same stops, and the same way back. If you get separated, agree to meet at the next Loop on the trail.",
+        'passport.cardTitle': 'Your Cruise Day Passport',
+        'passport.stamps': 'stamps',
+        'passport.cardSubStart': "Tap your first Loop in the city to start collecting.",
+        'passport.cardSubNext': "{n} more to unlock {r}",
+        'passport.cardSubReady': "Ready to claim: {r}",
+        'passport.cardSubFull': "All stamps collected. Your postcard is waiting.",
+        'passport.cardCtaStart': 'How it works',
+        'passport.cardCtaView': 'View my passport',
+        'passport.cardCtaClaim': 'Claim my reward',
+        'passport.title': 'Your Cruise Day Passport',
+        'passport.sub': 'Collect a stamp at every Loop. Earn local rewards along the way. No score, no rush.',
+        'passport.stampsTitle': 'Your stamps',
+        'passport.rewardsTitle': 'Your rewards',
+        'passport.rewardsSub': 'Three local partners have something waiting for you. Collect the stamps, show the code, enjoy.',
+        'passport.stamped': 'Collected',
+        'passport.notYet': 'Not yet',
+        'passport.rewardReady': 'Ready to claim',
+        'passport.rewardClaimed': 'Claimed',
+        'passport.rewardMore': 'more stamps to unlock',
+        'passport.claimCta': 'Show my code',
+        'passport.stampedToast': 'Stamp earned at',
+        'passport.rewardUnlockedToast': 'Reward unlocked:',
+        'snow.seasonal': 'Seasonal',
+        'snow.pickRoute': 'Pick your route',
+        'snow.pickRouteSub': 'Two looped walks, both ending at SeaCity Museum where you submit your trail for the free prize.',
+        'snow.stampsLower': 'stamps',
+        'snow.windowsLower': 'windows',
+        'snow.minsLower': 'min',
+        'snow.mins': 'min',
+        'snow.routeReady': 'Ready to submit',
+        'snow.routeSubmitted': 'Submitted',
+        'snow.stopsTitle': 'All your windows',
+        'snow.stopsSub': 'Tap a Loop at each window to collect your stamp. Type what you see, or leave it blank.',
+        'snow.tileFound': 'Found',
+        'snow.tileTap': 'Tap when there',
+        'snow.window': 'Window',
+        'snow.of': 'of',
+        'snow.foundBanner': 'You found this one',
+        'snow.promptTitle': 'What can you see?',
+        'snow.promptSub': 'Look up at the window. Write a word or two about the artwork. Or leave it blank and just collect your stamp.',
+        'snow.markFound': 'I found it',
+        'snow.notYet': 'Not yet, take me back',
+        'snow.readyTitle': 'All windows found',
+        'snow.readySub': "You've found every window on this route. Time to claim your prize at SeaCity Museum.",
+        'snow.submitCta': 'Submit my trail',
+        'snow.alreadySubmittedTitle': 'Trail submitted',
+        'snow.alreadySubmittedSub': 'Your reference code is {code}. Show it to staff at SeaCity Museum.',
+        'snow.viewCode': 'View my code',
+        'snow.submitEyebrow': 'Almost done',
+        'snow.submitTitle': 'Claim your prize',
+        'snow.submitSub': 'Pop into SeaCity Museum and show the code on the next screen to claim your free gift. Pop your details below to also enter the Ultimate Winter Prize draw.',
+        'snow.fName': 'Your name',
+        'snow.fEmail': 'Email',
+        'snow.fPostcode': 'Home postcode',
+        'snow.fAdults': 'Adults',
+        'snow.fChildren': 'Children',
+        'snow.fRating': 'Did you enjoy the trail?',
+        'snow.fComments': 'Anything to share?',
+        'snow.disclaimer': 'By submitting you agree to Visit Southampton storing your details for the prize draw. Winner announced in January.',
+        'snow.submitSkip': 'Just give me my code',
+        'snow.confTitle': 'Trail complete',
+        'snow.confSub': 'Show this code to staff at the SeaCity Museum desk to claim your free gift.',
+        'snow.confCodeNote': 'Valid until 4 January. One gift per submission.',
+        'snow.confHome': 'Back to home',
+        'common.continue': 'Continue',
+        'ship.eyebrow': 'Step 2 of 2',
+        'ship.title': "When's your all aboard?",
+        'ship.sub': "We'll keep an eye on the time and gently remind you when it's time to head back.",
+        'ship.confirm': "That's right",
+        'ship.skip': "I'll set this later",
+        'home.youAreHere': 'You are here',
+        'home.eyebrow1': 'Walk to the city',
+        'home.walkTitle': 'Quickest route in',
+        'home.walkEyebrow': 'QE2 Mile · direct',
+        'home.eyebrow2': 'Pick a theme',
+        'home.toursTitle': 'Tour the city',
+        'home.toursSub': "Three curated walks. Pick one and we'll guide you stop by stop.",
+        'overview.stops': 'Stops',
+        'overview.minutes': 'Minutes',
+        'overview.km': 'km walk',
+        'overview.whatYoullSee': "What you'll see",
+        'overview.start': 'Start the tour',
+        'overview.cancel': 'Choose a different tour',
+        'step.next': "I'm here. What's next?",
+        'step.routeMap': 'Your route',
+        'return.eyebrow': 'Heading back',
+        'return.title': 'Walk back to your ship',
+        'return.directionsTitle': 'Step by step',
+        'return.confirm': "I'm back at the terminal",
+        'return.notYet': 'Not yet, keep exploring',
+        'arrived.exploreMore': 'Explore another tour',
+        'arrived.headBack': 'Head back to the ship',
+        'floating.return': 'Back to ship',
+      },
+      de: {
+        'welcome.eyebrow': 'Willkommen in unserer wunderbaren Stadt',
+        'welcome.title': 'Southampton wartet auf Sie.',
+        'welcome.sub': 'Tippen Sie auf einen Loop, wählen Sie eine Tour und entdecken Sie die Stadt, bevor Ihr Schiff ausläuft.',
+        'welcome.start': "Los geht's",
+        'welcome.skip': 'Schon einmal benutzt. Einrichtung überspringen',
+        'welcome.taglineStrong': 'Kein Download nötig.',
+        'welcome.tagline': 'Das ist die App. Läuft im Browser, sofort einsatzbereit.',
+        'poweredBy': 'Bereitgestellt von',
+        'lang.eyebrow': 'Schritt 1 von 2',
+        'lang.title': 'Wählen Sie Ihre Sprache',
+        'lang.sub': 'Wir haben anhand Ihres Telefons geraten. Über das Globussymbol jederzeit ändern.',
+        'lang.resetEyebrow': 'Neu beginnen',
+        'lang.resetTitle': 'App zurücksetzen',
+        'lang.resetSub': 'Löscht Ihre gespeicherte Sprache, die Bord-Schluss-Zeit und den Tourfortschritt. Praktisch, wenn Sie das Telefon weitergeben.',
+        'lang.resetCta': 'Zur Startseite zurücksetzen',
+        'home.eyebrow3': 'Heute in Southampton',
+        'home.whatsOnTitle': 'Was ist heute los?',
+        'home.whatsOnSub': 'Live von Visit Southampton. Tippen Sie auf eine Veranstaltung, um mehr zu lesen.',
+        'home.whatsOnAll': 'Alle Veranstaltungen ansehen',
+        'home.seasonalEyebrow': 'Jetzt verfügbar',
+        'home.seasonalTitle': 'Saisonaler Pfad',
+        'home.seasonalSub': 'Sonderpfade nur für begrenzte Zeit verfügbar.',
+        'home.resetDemo': 'Für nächste Demo zurücksetzen',
+        'events.eyebrow': 'Heute geöffnet',
+        'events.title': 'Was ist heute los in Southampton?',
+        'events.sub': 'Live von Visit Southampton. Tippen Sie auf eine Veranstaltung, um mehr zu lesen.',
+        'events.viewAll': 'Alle Veranstaltungen auf Visit Southampton ansehen',
+        'events.pillOne': '1 Veranstaltung heute',
+        'events.pillMany': '{n} Veranstaltungen heute',
+        'snow.errName': 'Bitte geben Sie Ihren Namen an, damit wir Sie über die Verlosung informieren können.',
+        'snow.errEmail': 'Diese E-Mail-Adresse sieht nicht richtig aus. Bitte erneut versuchen, oder verwenden Sie "Nur Code zeigen", wenn Sie nur das Geschenk möchten.',
+        'help.eyebrow': 'Hilfe & sichere Orte',
+        'help.title': 'Hier ist immer jemand in der Nähe.',
+        'help.sub': 'Southampton ist eine gastfreundliche Stadt. Wenn Sie Hilfe brauchen, hier finden Sie sie.',
+        'help.emergencyEyebrow': 'Im Notfall',
+        'help.emergencyTitle': 'Hilfe rufen',
+        'help.call999': 'Notruf. Polizei, Feuerwehr, Krankenwagen.',
+        'help.call101': 'Hampshire Police, nicht dringend.',
+        'help.angelaEyebrow': 'Fragen Sie nach Angela',
+        'help.angelaTitle': 'In jedem Pub oder Bar nach "Angela" fragen',
+        'help.angelaSub': 'Southamptons Pubs und Bars nehmen am Ask for Angela Programm teil. Wenn Sie sich unwohl oder unsicher fühlen oder einfach leise gehen möchten, fragen Sie eine Mitarbeiterin oder einen Mitarbeiter an der Bar nach "Angela". Sie helfen Ihnen diskret, ein Taxi zu rufen oder bleiben bei Ihnen, bis alles gut ist. Keine Fragen, keine Aufregung.',
+        'help.spotsEyebrow': 'Freundliche Gesichter',
+        'help.spotsTitle': 'Sichere Orte in der Nähe',
+        'help.spotsSub': 'Besetzte Orte, an denen jemand helfen, ein Telefon leihen oder ein Glas Wasser geben kann.',
+        'help.duskEyebrow': 'Spätere Rückkehr',
+        'help.duskTitle': 'Nach Einbruch der Dunkelheit auf belebten Straßen bleiben',
+        'help.duskSub': 'Above Bar Street und High Street bleiben bis spät beleuchtet und belebt. Nach Sonnenuntergang empfehlen wir, durch die Haupthalle von WestQuay zurückzugehen statt entlang Western Esplanade.',
+        'help.lostEyebrow': 'Verloren oder gestrandet',
+        'help.lostTitle': 'Zurück zum Schiff',
+        'help.lostSub': 'Lizenzierte schwarze Taxis stehen am südlichen Eingang von WestQuay und beim Civic Centre. Ihre Kreuzfahrtlinie hat einen Hafenagenten ganztägig am Terminal. Die Nummer steht in Ihrem Tagesprogramm, machen Sie vorher ein Foto davon.',
+        'help.buddyEyebrow': 'In Begleitung unterwegs',
+        'help.buddyTitle': 'Teilen Sie Ihren Plan',
+        'help.buddySub': 'In einer Gruppe? Senden Sie den App-Link per Nachricht oder AirDrop an Ihre Begleitung. Sobald sie die App öffnen, sehen sie die gleichen Touren, die gleichen Stationen und den gleichen Rückweg. Wenn Sie sich trennen, treffen Sie sich am nächsten Loop.',
+        'passport.cardTitle': 'Ihr Kreuzfahrt-Tagespass',
+        'passport.stamps': 'Stempel',
+        'passport.cardSubStart': 'Tippen Sie auf Ihren ersten Loop in der Stadt, um zu beginnen.',
+        'passport.cardSubNext': '{n} weitere für {r}',
+        'passport.cardSubReady': 'Bereit zum Einlösen: {r}',
+        'passport.cardSubFull': 'Alle Stempel gesammelt. Ihre Postkarte wartet.',
+        'passport.cardCtaStart': 'Wie es funktioniert',
+        'passport.cardCtaView': 'Pass ansehen',
+        'passport.cardCtaClaim': 'Belohnung einlösen',
+        'passport.title': 'Ihr Kreuzfahrt-Tagespass',
+        'passport.sub': 'Sammeln Sie an jedem Loop einen Stempel. Verdienen Sie lokale Belohnungen. Kein Punktestand, keine Eile.',
+        'passport.stampsTitle': 'Ihre Stempel',
+        'passport.rewardsTitle': 'Ihre Belohnungen',
+        'passport.rewardsSub': 'Drei lokale Partner haben etwas für Sie. Stempel sammeln, Code zeigen, geniessen.',
+        'passport.stamped': 'Gesammelt',
+        'passport.notYet': 'Noch nicht',
+        'passport.rewardReady': 'Bereit zum Einlösen',
+        'passport.rewardClaimed': 'Eingelöst',
+        'passport.rewardMore': 'weitere Stempel',
+        'passport.claimCta': 'Code anzeigen',
+        'passport.stampedToast': 'Stempel gesammelt:',
+        'passport.rewardUnlockedToast': 'Belohnung freigeschaltet:',
+        'snow.seasonal': 'Saisonal',
+        'snow.pickRoute': 'Wählen Sie Ihre Route',
+        'snow.pickRouteSub': 'Zwei Rundwege, beide enden am SeaCity Museum, wo Sie Ihren Pfad für den kostenlosen Preis einreichen.',
+        'snow.stampsLower': 'Stempel',
+        'snow.windowsLower': 'Fenster',
+        'snow.minsLower': 'Min.',
+        'snow.mins': 'Min.',
+        'snow.routeReady': 'Bereit zur Abgabe',
+        'snow.routeSubmitted': 'Eingereicht',
+        'snow.stopsTitle': 'Alle Ihre Fenster',
+        'snow.stopsSub': 'Tippen Sie an jedem Fenster auf einen Loop, um Ihren Stempel zu sammeln.',
+        'snow.tileFound': 'Gefunden',
+        'snow.tileTap': 'Tippen vor Ort',
+        'snow.window': 'Fenster',
+        'snow.of': 'von',
+        'snow.foundBanner': 'Sie haben dieses gefunden',
+        'snow.promptTitle': 'Was sehen Sie?',
+        'snow.promptSub': 'Schauen Sie zum Fenster. Schreiben Sie ein oder zwei Worte über das Kunstwerk. Oder lassen Sie es leer und sammeln Sie nur Ihren Stempel.',
+        'snow.markFound': 'Ich habe es gefunden',
+        'snow.notYet': 'Noch nicht, zurück',
+        'snow.readyTitle': 'Alle Fenster gefunden',
+        'snow.readySub': 'Sie haben jedes Fenster dieser Route gefunden. Holen Sie Ihren Preis im SeaCity Museum.',
+        'snow.submitCta': 'Pfad einreichen',
+        'snow.alreadySubmittedTitle': 'Pfad eingereicht',
+        'snow.alreadySubmittedSub': 'Ihr Code ist {code}. Zeigen Sie ihn dem Personal im SeaCity Museum.',
+        'snow.viewCode': 'Meinen Code ansehen',
+        'snow.submitEyebrow': 'Fast geschafft',
+        'snow.submitTitle': 'Preis einlösen',
+        'snow.submitSub': 'Gehen Sie ins SeaCity Museum und zeigen Sie den Code auf dem nächsten Bildschirm. Tragen Sie unten Ihre Daten ein, um auch an der Ultimate Winter Prize Verlosung teilzunehmen.',
+        'snow.fName': 'Ihr Name',
+        'snow.fEmail': 'E-Mail',
+        'snow.fPostcode': 'Postleitzahl',
+        'snow.fAdults': 'Erwachsene',
+        'snow.fChildren': 'Kinder',
+        'snow.fRating': 'Hat Ihnen der Pfad gefallen?',
+        'snow.fComments': 'Möchten Sie etwas mitteilen?',
+        'snow.disclaimer': 'Mit der Übermittlung stimmen Sie zu, dass Visit Southampton Ihre Daten für die Verlosung speichert.',
+        'snow.submitSkip': 'Nur Code zeigen',
+        'snow.confTitle': 'Pfad abgeschlossen',
+        'snow.confSub': 'Zeigen Sie diesen Code dem Personal am SeaCity Museum.',
+        'snow.confCodeNote': 'Gültig bis 4. Januar. Ein Geschenk pro Einreichung.',
+        'snow.confHome': 'Zurück zur Startseite',
+        'common.continue': 'Weiter',
+        'ship.eyebrow': 'Schritt 2 von 2',
+        'ship.title': 'Wann ist Ihr Bord-Schluss?',
+        'ship.sub': 'Wir behalten die Zeit im Auge und erinnern Sie sanft, wenn es Zeit ist, zurückzukehren.',
+        'ship.confirm': 'Das stimmt',
+        'ship.skip': 'Später einstellen',
+        'home.youAreHere': 'Sie befinden sich hier',
+        'home.eyebrow1': 'Zu Fuß in die Stadt',
+        'home.walkTitle': 'Schnellster Weg in die Stadt',
+        'home.walkEyebrow': 'QE2 Mile · direkt',
+        'home.eyebrow2': 'Wählen Sie ein Thema',
+        'home.toursTitle': 'Die Stadt entdecken',
+        'home.toursSub': 'Drei kuratierte Spaziergänge. Wählen Sie einen, wir führen Sie Schritt für Schritt.',
+        'overview.stops': 'Stationen',
+        'overview.minutes': 'Minuten',
+        'overview.km': 'km Weg',
+        'overview.whatYoullSee': 'Das sehen Sie',
+        'overview.start': 'Tour starten',
+        'overview.cancel': 'Andere Tour wählen',
+        'step.next': 'Ich bin da. Was nun?',
+        'step.routeMap': 'Ihre Route',
+        'return.eyebrow': 'Auf dem Rückweg',
+        'return.title': 'Zurück zum Schiff',
+        'return.directionsTitle': 'Schritt für Schritt',
+        'return.confirm': 'Ich bin zurück am Terminal',
+        'return.notYet': 'Noch nicht, weiter erkunden',
+        'arrived.exploreMore': 'Eine andere Tour erkunden',
+        'arrived.headBack': 'Zurück zum Schiff',
+        'floating.return': 'Zurück zum Schiff',
+      },
+    };
+
+    const HUBS = {
+      'cruise-terminal': { id: 'cruise-terminal', name: { en: 'Cruise Terminal', de: 'Kreuzfahrtterminal' }, zone: 'port', walkBackMin: 0, defaultEntry: 'bargate', defaultEntryName: { en: 'the Old Town', de: 'die Altstadt' }, defaultEntryMin: 18, defaultEntrySteps: 5 },
+      'bargate': { id: 'bargate', name: { en: 'Bargate', de: 'Bargate' }, zone: 'old-town', walkBackMin: 16, defaultEntry: 'westquay', defaultEntryName: { en: 'WestQuay', de: 'WestQuay' }, defaultEntryMin: 6, defaultEntrySteps: 3 },
+      'old-town': { id: 'old-town', name: { en: 'Old Town · QE2 Anchor', de: 'Altstadt · QE2 Anker' }, zone: 'old-town', walkBackMin: 8, defaultEntry: 'bargate', defaultEntryName: { en: 'the Bargate', de: 'das Bargate' }, defaultEntryMin: 4, defaultEntrySteps: 2 },
+      'westquay': { id: 'westquay', name: { en: 'WestQuay Esplanade', de: 'WestQuay Esplanade' }, zone: 'westquay', walkBackMin: 14, defaultEntry: 'bargate', defaultEntryName: { en: 'the Old Town', de: 'die Altstadt' }, defaultEntryMin: 5, defaultEntrySteps: 2 },
+      'cultural-quarter': { id: 'cultural-quarter', name: { en: 'Cultural Quarter', de: 'Kulturviertel' }, zone: 'cultural', walkBackMin: 24, defaultEntry: 'seacity', defaultEntryName: { en: 'SeaCity Museum', de: 'SeaCity Museum' }, defaultEntryMin: 3, defaultEntrySteps: 1 },
+      'oxford-street': { id: 'oxford-street', name: { en: 'Oxford Street', de: 'Oxford Street' }, zone: 'oxford', walkBackMin: 12, defaultEntry: 'bargate', defaultEntryName: { en: 'the Bargate', de: 'das Bargate' }, defaultEntryMin: 6, defaultEntrySteps: 2 },
+      'seacity': { id: 'seacity', name: { en: 'SeaCity Museum', de: 'SeaCity Museum' }, zone: 'cultural', walkBackMin: 26, defaultEntry: 'bargate', defaultEntryName: { en: 'the Bargate', de: 'das Bargate' }, defaultEntryMin: 10, defaultEntrySteps: 3 },
+      'dancing-man': { id: 'dancing-man', name: { en: 'Dancing Man Brewery', de: 'Dancing Man Brewery' }, zone: 'old-town', walkBackMin: 6, defaultEntry: 'bargate', defaultEntryName: { en: 'the Bargate', de: 'das Bargate' }, defaultEntryMin: 8, defaultEntrySteps: 3 },
+    };
+
+    const WALK_DECKS = {
+      'cruise-terminal': [
+        { dir: '<strong>From the Cruise Terminal:</strong> Walk north on Town Quay Road, keeping the water on your right.', img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/ABP_CRUISE_WEEKEND_credit_Solent_Sky_Services_323ac337-42f9-4014-94a9-f5f6e97a1591.jpg', title: 'Leave the terminal' },
+        { dir: '<strong>Cross at the lights</strong> and head under the railway bridge. The medieval walls appear on your right.', img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Walls_and_Westquay_Resized_1920x927_02d0c834-2d47-4584-8ae5-d1ce86f91c56.jpg', title: 'Cross under the railway' },
+        { dir: 'Follow the walls north along Western Esplanade for 4 minutes. <strong>Keep them on your right.</strong>', img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Walls_and_Westquay_Resized_1920x927_02d0c834-2d47-4584-8ae5-d1ce86f91c56.jpg', title: 'Along Western Esplanade' },
+        { dir: 'At WestQuay Esplanade, <strong>turn right</strong> into the city. The pedestrianised High Street is ahead.', img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Summer_header_image_b75a2649-0200-4fff-8273-366a3a535de5.png', title: 'Turn into WestQuay' },
+        { dir: 'Continue along High Street for 4 minutes until you see the <strong>medieval Bargate</strong> rising ahead of you. <em>Tap the Loop on the Bargate to confirm your arrival.</em>', img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Home_Page_Header_Bargate_1920x927_8dc4ae29-564f-477d-8bc9-779ae24dcb8f.jpg', title: 'Arrive at the Bargate' },
+      ],
+      'bargate': [
+        { dir: '<strong>From the Bargate:</strong> Head west on Bargate Street.', img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Home_Page_Header_Bargate_1920x927_8dc4ae29-564f-477d-8bc9-779ae24dcb8f.jpg', title: 'Leave the Bargate' },
+        { dir: 'You\'ll see <strong>WestQuay\'s main entrance</strong> on your left within 200m.', img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Summer_header_image_b75a2649-0200-4fff-8273-366a3a535de5.png', title: 'WestQuay entrance ahead' },
+        { dir: 'Enter WestQuay. Tap the Loop inside the main concourse.', img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Summer_header_image_b75a2649-0200-4fff-8273-366a3a535de5.png', title: 'Arrive at WestQuay' },
+      ],
+    };
+
+    const TOURS = [
+      {
+        id: 'history',
+        theme: { en: 'History', de: 'Geschichte' },
+        title: { en: 'Titanic to Tudor', de: 'Von der Titanic zum Tudor-Haus' },
+        blurb: { en: "From the engineers who died with the Titanic to the medieval gateway that's stood for 800 years. A stroll through Southampton's story.", de: 'Von den Ingenieuren, die mit der Titanic starben, bis zum mittelalterlichen Tor, das seit 800 Jahren steht.' },
+        startHub: 'bargate', endHub: 'dancing-man', mins: 75, km: 2.3,
+        heroImg: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Home_Page_Header_Bargate_1920x927_8dc4ae29-564f-477d-8bc9-779ae24dcb8f.jpg',
+        stops: [
+          { title: { en: "Titanic Engineers' Memorial", de: 'Titanic Ingenieur-Denkmal' }, sub: { en: 'Above Bar Street · East Park', de: 'Above Bar Street · East Park' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Three_Hour_Whirlwind_Tour_header_credit_Ryan_Stanikk_fa50259d-f981-4b14-b4db-54ae9e14a5bd.png', copy: { en: 'Begin between East and West Park, at the top of Above Bar Street. The 1914 memorial honours the 35 engineers who stayed at their posts as RMS Titanic went down on 10 April 1912.', de: 'Beginnen Sie zwischen East und West Park. Das Denkmal von 1914 ehrt die 35 Ingenieure, die an ihren Posten blieben, als die RMS Titanic sank.' }, direction: { en: '<strong>Start here.</strong> Take a moment with the bronze plaque, then continue south down Above Bar Street.', de: '<strong>Hier starten.</strong> Verweilen Sie kurz, dann südlich die Above Bar Street hinunter.' } },
+          { title: { en: 'SeaCity Museum', de: 'SeaCity Museum' }, sub: { en: 'Civic Centre · Titanic story', de: 'Civic Centre · Titanic-Geschichte' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/And_The_Kids_Came_Too_header_bc254f62-e975-439f-820e-effd5e7a77cf.png', copy: { en: 'A short walk west brings you to SeaCity. The permanent Titanic exhibit follows the 549 Southampton crew who never came home.', de: 'Ein kurzer Spaziergang westlich bringt Sie zum SeaCity. Die Dauerausstellung folgt den 549 Southampton-Besatzungsmitgliedern, die nie heimkehrten.' }, direction: { en: '<strong>Head west</strong> across the Civic Centre forecourt. SeaCity sits beside the Guildhall.', de: '<strong>Westwärts gehen</strong> über den Vorplatz des Civic Centre. SeaCity steht neben der Guildhall.' } },
+          { title: { en: 'The Bargate', de: 'Das Bargate' }, sub: { en: 'Medieval north gate', de: 'Mittelalterliches Nordtor' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Home_Page_Header_Bargate_1920x927_8dc4ae29-564f-477d-8bc9-779ae24dcb8f.jpg', copy: { en: "Built around 1180, the Bargate guarded the city's north entrance for 800 years. Look up: the lions and Tudor coat of arms are originals.", de: 'Um 1180 erbaut, bewachte das Bargate 800 Jahre lang den Nordeingang. Schauen Sie nach oben: die Löwen und das Tudor-Wappen sind Originale.' }, direction: { en: '<strong>Walk south</strong> down Above Bar Street. The Bargate sits at the foot.', de: '<strong>Südwärts</strong> die Above Bar Street hinunter.' } },
+          { title: { en: 'Town Walls & QE2 Anchor', de: 'Stadtmauern & QE2 Anker' }, sub: { en: 'Western Esplanade', de: 'Western Esplanade' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Walls_and_Westquay_Resized_1920x927_02d0c834-2d47-4584-8ae5-d1ce86f91c56.jpg', copy: { en: "Some of England's best preserved medieval walls. At their foot, the anchor of the original RMS Queen Elizabeth 2, a liner built in Southampton.", de: 'Einige der besterhaltenen Mauern Englands. Der Anker der ursprünglichen RMS Queen Elizabeth 2.' }, direction: { en: '<strong>Pass through the Bargate arch</strong> and turn right onto Westgate Street.', de: '<strong>Durch den Bargate-Bogen</strong> und rechts auf die Westgate Street.' } },
+          { title: { en: 'Holyrood Church', de: 'Holyrood Church' }, sub: { en: "Sailors' memorial", de: 'Seemannsgedenkstätte' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Cultural_Quarter_credit_Dan_Wilson_c6c0b992-f86d-4f43-814c-0ca18d79f57d.jpg', copy: { en: 'Bombed in 1940 and left as a ruin in memory of those lost at sea. Plaques mark the Titanic crew, the merchant navy, and the Mayflower\'s 1620 voyage.', de: '1940 zerbombt und als Ruine zum Gedenken belassen. Tafeln erinnern an die Titanic-Crew, die Handelsmarine und die Mayflower-Fahrt 1620.' }, direction: { en: '<strong>Continue down</strong> the High Street. The roofless church is on your left.', de: '<strong>Weiter</strong> die High Street hinunter. Die dachlose Kirche liegt links.' } },
+          { title: { en: 'Dancing Man Brewery', de: 'Dancing Man Brewery' }, sub: { en: '13th century woolhouse · waterfront pub', de: 'Wollhalle aus dem 13. Jahrhundert' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Dancing_Man_Brewery_Old_Woohouse_Credit_KLC_Studios_26c343c5-f85c-4f1e-a45c-c5743e0333b4.png', copy: { en: "End at the Dancing Man, a 13th century wool merchant's hall, now an award winning brewpub on the water. A pint here is the way to finish.", de: 'Abschluss im Dancing Man, einer Wollhändlerhalle aus dem 13. Jahrhundert, heute preisgekrönter Brauereipub am Wasser.' }, direction: { en: '<strong>Keep walking south</strong> until you hit the waterfront. The Dancing Man has the green sign.', de: '<strong>Weiter südwärts</strong> bis zum Wasser. Grünes Schild.' } },
+        ],
+      },
+      {
+        id: 'food',
+        theme: { en: 'Food & Drink', de: 'Essen & Trinken' },
+        title: { en: "A Cruiser's Foodie Trail", de: 'Eine kulinarische Tour' },
+        blurb: { en: 'Coffee on Above Bar, lunch on Oxford Street, and a 13th century pint by the water. Five stops, five flavours of Southampton.', de: 'Kaffee an der Above Bar, Mittagessen in der Oxford Street und ein Pint aus dem 13. Jahrhundert am Wasser.' },
+        startHub: 'bargate', endHub: 'dancing-man', mins: 90, km: 1.8,
+        heroImg: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Person_sipping_coffee_Mettricks_Westquay_credit_Ryan_Stanikk_8d71bdc3-ea0e-4a80-b54d-4008f608050e.png',
+        stops: [
+          { title: { en: 'Mettricks Guildhall', de: 'Mettricks Guildhall' }, sub: { en: 'Specialty coffee · Above Bar', de: 'Spezialitätenkaffee · Above Bar' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Person_sipping_coffee_Mettricks_Westquay_credit_Ryan_Stanikk_8d71bdc3-ea0e-4a80-b54d-4008f608050e.png', copy: { en: "Start with Southampton's beloved third wave coffee house. Single origin beans, knowledgeable baristas, and a window onto Guildhall Square.", de: 'Beginnen Sie mit Southamptons beliebtem Third Wave-Café.' }, direction: { en: '<strong>Start on Above Bar Street.</strong> Mettricks faces Guildhall Square. Dark green frontage.', de: '<strong>Beginn auf der Above Bar Street.</strong> Mettricks liegt am Guildhall Square.' } },
+          { title: { en: 'Oxford Street al fresco', de: 'Oxford Street unter freiem Himmel' }, sub: { en: 'Cafe quarter · pavement tables', de: 'Caféviertel · Tische im Freien' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Oxford_Street_credit_Dan_Wilson_5ef991f1-8c28-4c85-9da4-42e6844b0433.jpg', copy: { en: "Five minutes' walk takes you to Oxford Street, Southampton's outdoor dining boulevard. Pick any table; you can't go wrong.", de: 'Fünf Minuten zu Fuß zur Oxford Street. Southamptons Boulevard zum Draußensitzen.' }, direction: { en: '<strong>Walk south</strong> down Above Bar, past the Bargate. Oxford Street branches left after 300m.', de: '<strong>Südwärts</strong> die Above Bar entlang, am Bargate vorbei.' } },
+          { title: { en: 'Bedford Place', de: 'Bedford Place' }, sub: { en: 'Independent bars & bistros', de: 'Unabhängige Bars & Bistros' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Padharo_family_meal_2c632558-fea4-4757-8234-a1f190064a63.jpg', copy: { en: 'Bedford Place is where locals go. Tiny bars, ramen joints, indie wine merchants. Almost no chains.', de: 'In Bedford Place gehen die Einheimischen aus. Kleine Bars, Ramen-Läden, Weinhändler.' }, direction: { en: '<strong>Head north</strong> up Above Bar, then bear left at Devonshire Road.', de: '<strong>Nordwärts</strong> die Above Bar hinauf, dann links in die Devonshire Road.' } },
+          { title: { en: 'WestQuay South', de: 'WestQuay Süd' }, sub: { en: 'Waterside dining', de: 'Essen am Wasser' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Summer_header_image_b75a2649-0200-4fff-8273-366a3a535de5.png', copy: { en: "WestQuay's south end has waterside terraces with views to the medieval walls. Zizzi, The Real Greek, and newer independents.", de: 'Das Südende von WestQuay hat Wasserterrassen mit Blick auf die Stadtmauern. Zizzi, The Real Greek.' }, direction: { en: '<strong>Walk back south</strong> through WestQuay\'s main mall. The south esplanade exit overlooks the walls.', de: '<strong>Südwärts zurück</strong> durch WestQuay-Hauptzentrum.' } },
+          { title: { en: 'Dancing Man Brewery', de: 'Dancing Man Brewery' }, sub: { en: 'A 13th century pint by the water', de: 'Ein Pint aus dem 13. Jahrhundert am Wasser' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Dancing_Man_Brewery_Old_Woohouse_Credit_KLC_Studios_26c343c5-f85c-4f1e-a45c-c5743e0333b4.png', copy: { en: "Finish at the Dancing Man, a brewpub in a 13th century wool merchant's hall. The house pale ale is the move.", de: 'Abschluss im Dancing Man, Brauereipub aus dem 13. Jahrhundert. Das Hauspale Ale ist die Empfehlung.' }, direction: { en: '<strong>Walk south to the waterfront.</strong> Green sign on the stone building.', de: '<strong>Südwärts zum Hafen.</strong> Grünes Schild am Steingebäude.' } },
+        ],
+      },
+      {
+        id: 'retail',
+        theme: { en: 'Retail', de: 'Shopping' },
+        title: { en: 'Southampton Shopping Loop', de: 'Southampton Shopping Loop' },
+        blurb: { en: '200+ shops in a single hour, from WestQuay\'s designer brands to the Old Town\'s independents.', de: 'Über 200 Geschäfte in einer Stunde, von WestQuay bis zu den Indies der Altstadt.' },
+        startHub: 'westquay', endHub: 'bargate', mins: 60, km: 1.4,
+        heroImg: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Summer_header_image_b75a2649-0200-4fff-8273-366a3a535de5.png',
+        stops: [
+          { title: { en: 'WestQuay Shopping Centre', de: 'WestQuay Einkaufszentrum' }, sub: { en: '150+ shops · 3 floors', de: 'Über 150 Geschäfte · 3 Ebenen' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Summer_header_image_b75a2649-0200-4fff-8273-366a3a535de5.png', copy: { en: "Southampton's flagship mall. John Lewis, Apple, high street regulars, plus a designer wing and south esplanade terraces.", de: 'Southamptons Vorzeige-Einkaufszentrum. John Lewis, Apple, plus Designerbereich.' }, direction: { en: '<strong>Start at the main entrance</strong> on WestQuay Avenue. We suggest going up to the top floor and working down.', de: '<strong>Beginn am Haupteingang</strong>. Oben starten und abwärts arbeiten.' } },
+          { title: { en: 'WestQuay Esplanade', de: 'WestQuay Esplanade' }, sub: { en: 'Outdoor extension', de: 'Outdoor-Erweiterung' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Walls_and_Westquay_Resized_1920x927_02d0c834-2d47-4584-8ae5-d1ce86f91c56.jpg', copy: { en: 'Step out onto the south esplanade. Cineworld, more dining, and the famous wall view steps.', de: 'Treten Sie auf die Südesplanade. Cineworld, Restaurants, berühmte Stufen mit Mauerblick.' }, direction: { en: '<strong>Exit south</strong> through the main concourse. Esplanade is signposted.', de: '<strong>Südausgang</strong> durch die Haupthalle.' } },
+          { title: { en: 'Above Bar Street', de: 'Above Bar Street' }, sub: { en: 'Pedestrian high street', de: 'Fußgängerzone' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Oxford_Street_credit_Dan_Wilson_5ef991f1-8c28-4c85-9da4-42e6844b0433.jpg', copy: { en: 'Above Bar is the pedestrian high street. Familiar brands, plus the Bargate as a stunning architectural punctuation halfway down.', de: 'Above Bar ist die Fußgänger-Hauptstraße. Bekannte Marken, mit dem Bargate als Akzent.' }, direction: { en: '<strong>Head east</strong> through WestQuay\'s east exit and across the precinct.', de: '<strong>Ostwärts</strong> durch den Ostausgang.' } },
+          { title: { en: 'Marlands Shopping Centre', de: 'Marlands Einkaufszentrum' }, sub: { en: 'Smaller mall · indies & high street', de: 'Kleineres Zentrum' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Home_Page_Header_Bargate_1920x927_8dc4ae29-564f-477d-8bc9-779ae24dcb8f.jpg', copy: { en: 'Marlands is the more relaxed, indie friendly counterpart to WestQuay. Good for Southampton specific brands.', de: 'Marlands ist das entspanntere Pendant zu WestQuay. Gut für Southampton-Marken.' }, direction: { en: '<strong>Walk north</strong> on Above Bar. Marlands sits opposite the Civic Centre.', de: '<strong>Nordwärts</strong> die Above Bar. Marlands gegenüber dem Civic Centre.' } },
+          { title: { en: 'Old Town independents', de: 'Indies der Altstadt' }, sub: { en: 'Bargate · French Quarter · Bedford Place', de: 'Bargate · Französisches Viertel · Bedford Place' }, img: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Cultural_Quarter_credit_Dan_Wilson_c6c0b992-f86d-4f43-814c-0ca18d79f57d.jpg', copy: { en: "End in the Old Town. Tucked into the medieval streets: vintage shops, artisan bakers, and the city's independent record store.", de: 'Abschluss in der Altstadt. Vintage-Läden, Handwerksbäcker, Plattenladen.' }, direction: { en: '<strong>Walk south</strong> past the Bargate and explore the lanes east and west of the High Street.', de: '<strong>Südwärts</strong> am Bargate vorbei.' } },
+        ],
+      },
+      {
+        id: 'snow-trail',
+        isSnowTrail: true,
+        theme: { en: 'Seasonal · Nov to Jan', de: 'Saisonal · Nov bis Jan' },
+        title: { en: 'Snow Windows Trail', de: 'Schnee-Fenster-Pfad' },
+        blurb: { en: 'Two routes, 23 hand-painted windows, one free prize at SeaCity Museum.', de: 'Zwei Routen, 23 handbemalte Fenster, ein kostenloser Preis im SeaCity Museum.' },
+        startHub: 'cruise-terminal', endHub: 'seacity', mins: 65, km: 3.7,
+        heroImg: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Snow_Windows_bunny_4f3107ff-7290-46c2-a571-656a64a1bace.png',
+        stops: [],
+      },
+    ];
+
+    const RETURN_DECKS = {
+      'bargate': [ { name: 'Through the Bargate arch', sub: 'Head south on the High Street' }, { name: 'Past Holyrood Church', sub: 'Roofless ruin on your left' }, { name: 'Across Town Quay', sub: 'Cross at the lights, terminal signposted' }, { name: 'Cruise Terminal', sub: 'Loop the arrival tag at the gate' } ],
+      'old-town': [ { name: 'Down Bugle Street', sub: 'Past Tudor House on your right' }, { name: 'Onto Town Quay', sub: 'Cross at the lights' }, { name: 'Cruise Terminal', sub: 'Loop your arrival tag at the gate' } ],
+      'westquay': [ { name: 'Exit WestQuay south', sub: 'Esplanade, towards the walls' }, { name: 'Along Western Esplanade', sub: 'Keep the walls on your left' }, { name: 'Under the railway', sub: 'And onto Town Quay Road' }, { name: 'Cruise Terminal', sub: 'Tap your Loop at the gate' } ],
+      'cultural-quarter': [ { name: 'South down Above Bar', sub: 'Through Guildhall Square' }, { name: 'Past the Bargate', sub: 'Continue south on the High Street' }, { name: 'Past Holyrood Church', sub: 'Cross at the bottom of the High Street' }, { name: 'Across Town Quay', sub: 'Terminal signposted' }, { name: 'Cruise Terminal', sub: 'Tap your Loop at the gate' } ],
+      'oxford-street': [ { name: 'West along Oxford Street', sub: 'To High Street' }, { name: 'South past Holyrood Church', sub: 'Roofless ruin on your right' }, { name: 'Across Town Quay', sub: 'Cross at the lights' }, { name: 'Cruise Terminal', sub: 'Tap your Loop at the gate' } ],
+      'seacity': [ { name: 'South across the Civic Centre', sub: 'Past the Guildhall on your left' }, { name: 'Down Above Bar', sub: 'Through to the Bargate' }, { name: 'Through the Bargate', sub: 'And south on the High Street' }, { name: 'Across Town Quay', sub: 'Terminal signposted' }, { name: 'Cruise Terminal', sub: 'Tap your Loop at the gate' } ],
+      'dancing-man': [ { name: 'Step out onto Town Quay', sub: "You're already at the waterfront" }, { name: 'West along Town Quay', sub: '300m past the ferry terminal' }, { name: 'Cruise Terminal', sub: 'Tap your Loop at the gate' } ],
+    };
+
+    // Whats On feed. v1 demo seeds today's event statically. In production this
+    // would fetch from visitsouthampton.co.uk/events/ on app launch.
+    const WHATS_ON = [
+      {
+        id: 'art-gallery-new-acquisitions',
+        when: { en: 'On today · until 30 May', de: 'Heute geöffnet · bis 30. Mai' },
+        title: { en: 'New Acquisitions', de: 'Neue Erwerbungen' },
+        venue: { en: 'Southampton City Art Gallery · Cultural Quarter', de: 'Southampton City Art Gallery · Kulturviertel' },
+        img: 'https://assets.simpleviewinc.com/simpleview/image/fetch/c_fill,f_jpg,h_400,q_70,w_400/https://tsedmsmedia.newmindmedia.com/wsimgs/4E6B43BD042B778B87DAD054E136F3F5B49316B4.jpg',
+        url: 'https://www.visitsouthampton.co.uk/event/southampton-city-art-gallery%3A-new-acquisitions/279963101/',
+      },
+    ];
+
+    // Passport gamification. Every Loop tap collects a stamp, starting with
+    // the cruise terminal tap on arrival. That first stamp activates the
+    // passport on the home screen so visitors are motivated to keep tapping.
+    const COLLECTIBLE_HUBS = ['cruise-terminal', 'bargate', 'westquay', 'old-town', 'cultural-quarter', 'oxford-street', 'seacity', 'dancing-man'];
+    const REWARDS = [
+      {
+        id: 'tier1', threshold: 3, icon: '🍺',
+        title: { en: 'A pint at Dancing Man Brewery', de: 'Ein Pint im Dancing Man Brewery' },
+        sub: { en: '10% off any draught beer or house ale.', de: '10% auf alle Biere vom Fass.' },
+        partner: { en: 'Dancing Man Brewery · Town Quay', de: 'Dancing Man Brewery · Town Quay' },
+        instructions: { en: 'Show this code to staff at the bar. Valid today only.', de: 'Zeigen Sie diesen Code dem Personal an der Bar. Nur heute gültig.' },
+        code: 'PINT-10',
+      },
+      {
+        id: 'tier2', threshold: 5, icon: '☕',
+        title: { en: 'Coffee on us at Mettricks Guildhall', de: 'Kaffee bei Mettricks Guildhall' },
+        sub: { en: 'A free filter coffee or English breakfast tea.', de: 'Ein kostenloser Filterkaffee oder Schwarztee.' },
+        partner: { en: 'Mettricks · Above Bar Street', de: 'Mettricks · Above Bar Street' },
+        instructions: { en: 'Show this code to the barista. Valid today only.', de: 'Zeigen Sie diesen Code dem Barista. Nur heute gültig.' },
+        code: 'BREW-05',
+      },
+      {
+        id: 'tier3', threshold: 8, icon: '🌟',
+        title: { en: 'Your Southampton Explorer postcard', de: 'Ihre Southampton Explorer Postkarte' },
+        sub: { en: 'A shareable digital postcard of your day. A keepsake for the journey home.', de: 'Eine teilbare digitale Postkarte Ihres Tages. Ein Andenken für die Heimreise.' },
+        partner: { en: 'Visit Southampton', de: 'Visit Southampton' },
+        instructions: { en: 'Save this code, then visit visitsouthampton.co.uk/explorer to claim your postcard.', de: 'Speichern Sie diesen Code, dann visitsouthampton.co.uk/explorer besuchen.' },
+        code: 'EXPLORER',
+      },
+    ];
+
+    // SNOW WINDOWS TRAIL. Seasonal Visit Southampton initiative (29 Nov to 4 Jan).
+    // Replaces the paper map + QR code experience with NFC Loops + digital answers.
+    // Source: Visit Southampton printed Snow Windows Trail map.
+    const SNOW_TRAIL = {
+      id: 'snow-trail',
+      title: { en: 'Snow Windows Trail', de: 'Schnee-Fenster-Pfad' },
+      blurb: { en: "Southampton's streets transformed into a gallery of hand-painted snow window artworks. Two routes, 23 windows, one free prize at SeaCity Museum.", de: 'Die Straßen Southamptons als Galerie handbemalter Schneefenster. Zwei Routen, 23 Fenster, ein kostenloser Preis im SeaCity Museum.' },
+      dates: { en: '29 November to 4 January · 10am to 5pm', de: '29. November bis 4. Januar · 10 bis 17 Uhr' },
+      prizeBlurb: { en: "Once you've found all the windows on a route, submit your trail to enter the Ultimate Winter Prize draw and claim your free SeaCity Museum gift.", de: 'Wenn Sie alle Fenster einer Route gefunden haben, reichen Sie Ihren Pfad ein.' },
+      heroImg: 'https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_500,q_70,w_800/v1/clients/southampton/Snow_Windows_bunny_4f3107ff-7290-46c2-a571-656a64a1bace.png',
+      routes: {
+        snowflake: {
+          id: 'snowflake', name: { en: 'Snowflake Route', de: 'Schneeflocken-Route' }, icon: '❄', duration: 40, distance: 1.6, distanceUnit: 'miles',
+          stops: [
+            { id: 1, name: 'The Mayflower Village', address: 'Commercial Road, SO15 1GE' },
+            { id: 2, name: 'Oceana House', address: 'Commercial Road, SO15 1GA' },
+            { id: 3, name: 'Premier Inn', address: 'Cumberland Place, SO15 2WY' },
+            { id: 4, name: 'Grosvenor House', address: 'Grosvenor Square, SO15 2BE' },
+            { id: 5, name: 'Ryman Stationery', address: 'London Road, SO15 2WW' },
+            { id: 6, name: 'Goadsby Estate Agents', address: 'London Road, SO15 2AH' },
+            { id: 7, name: 'Barber Lab & Co', address: 'London Road, SO15 2AF' },
+            { id: 8, name: 'Solent University Sports Complex', address: 'East Park Terrace, SO14 0YN' },
+            { id: 9, name: 'John Hansard Gallery', address: 'Above Bar Street, SO14 7DU' },
+            { id: 10, name: 'Dice & Dumplings', address: 'Above Bar Street, SO14 7DU' },
+            { id: 11, name: '1 Guildhall Square', address: 'Guildhall Square, SO14 7FP' },
+            { id: 12, name: 'SeaCity Museum', address: 'Havelock Road, SO14 7FY', isFinal: true },
+          ],
+        },
+        star: {
+          id: 'star', name: { en: 'Star Route', de: 'Stern-Route' }, icon: '✦', duration: 25, distance: 0.7, distanceUnit: 'miles',
+          stops: [
+            { id: 1, name: 'Kadampa Meditation Centre', address: 'Hanover Buildings, SO14 1JU' },
+            { id: 2, name: 'Run Company', address: 'Hanover Buildings, SO14 1JU' },
+            { id: 3, name: 'Metro Bank', address: 'Above Bar Street, SO15 1QD' },
+            { id: 4, name: 'Cool! Merch', address: 'Marlands Shopping Centre, SO14 7SJ' },
+            { id: 5, name: 'The Marlands (next to One Below)', address: 'Marlands Shopping Centre, SO14 7SJ' },
+            { id: 6, name: 'Amplifon Hearing Centre', address: 'Above Bar Street, SO14 7FG' },
+            { id: 7, name: 'Slug & Lettuce', address: 'Above Bar Street, SO14 7FG' },
+            { id: 8, name: 'Above Barbers', address: 'Above Bar Street, SO14 7FH' },
+            { id: 9, name: 'Sprinkles Gelato', address: 'Above Bar Street, SO14 7DU' },
+            { id: 10, name: 'London Camera Exchange', address: 'Civic Centre Road, SO14 7FJ' },
+            { id: 11, name: 'SeaCity Museum', address: 'Havelock Road, SO14 7FY', isFinal: true },
+          ],
+        },
+      },
+    };
+
+    // Safe spots offered on the Help screen. Curated, generic, verifiable.
+    const SAFE_SPOTS = [
+      { name: { en: 'Tourist Information at the Civic Centre', de: 'Touristeninformation am Civic Centre' }, detail: { en: 'Helpful staff, free maps, public toilets. Open weekdays from 10am.', de: 'Hilfsbereites Personal, kostenlose Karten, öffentliche Toiletten. Werktags ab 10 Uhr.' } },
+      { name: { en: 'WestQuay customer services', de: 'WestQuay Kundenservice' }, detail: { en: 'Ground floor, central concourse. Staffed throughout shopping hours.', de: 'Erdgeschoss, zentrale Halle. Während der Öffnungszeiten besetzt.' } },
+      { name: { en: 'Mettricks Guildhall', de: 'Mettricks Guildhall' }, detail: { en: 'Above Bar Street. Friendly café staff, busy throughout the day.', de: 'Above Bar Street. Freundliches Café-Personal, ganztägig belebt.' } },
+      { name: { en: 'SeaCity Museum reception', de: 'SeaCity Museum Empfang' }, detail: { en: 'Civic Centre. Open daily. Free WiFi inside.', de: 'Civic Centre. Täglich geöffnet. Kostenloses WLAN.' } },
+      { name: { en: 'Dancing Man Brewery', de: 'Dancing Man Brewery' }, detail: { en: '13th century woolhouse on Town Quay. Award winning pub with attentive staff.', de: 'Wollhalle aus dem 13. Jahrhundert am Town Quay. Preisgekrönter Pub.' } },
+    ];
+
+    const STORAGE_KEY = 'soton-cruise-v1';
+    const state = {
+      lang: 'en', currentHub: 'cruise-terminal', shipTime: null,
+      activeTourId: null, activeStopIdx: 0, walkDeckActive: false, walkStepIdx: 0,
+      passport: [], claimedRewards: [],
+      snowTrail: {
+        activeRoute: null, activeStopId: null,
+        stamps: { snowflake: [], star: [] },
+        answers: { snowflake: {}, star: {} },
+        submitted: { snowflake: null, star: null },
+        submitterName: '', submitterEmail: '', submitterPostcode: '',
+        groupAdults: 2, groupChildren: 0, rating: null, comments: '',
+      },
+    };
+    function loadState() { try { Object.assign(state, JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch (e) {} }
+    function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+    const screens = {};
+    document.querySelectorAll('.screen').forEach(s => screens[s.dataset.screen] = s);
+    let screenStack = ['welcome'];
+    function show(name) { Object.values(screens).forEach(s => s.classList.remove('active')); const t = screens[name]; if (!t) return; t.classList.add('active'); window.scrollTo(0, 0); updateFloatingReturn(name); }
+    function go(name) { screenStack.push(name); show(name); }
+    function back() { if (screenStack.length > 1) { screenStack.pop(); show(screenStack[screenStack.length - 1]); } else show('home'); }
+    function updateFloatingReturn(screen) {
+      const el = document.getElementById('floatingReturn');
+      const shouldShow = ['home', 'tour-overview', 'step'].includes(screen) && state.currentHub !== 'cruise-terminal';
+      el.classList.toggle('hidden', !shouldShow);
+    }
+
+    function t(key) { return (I18N[state.lang] && I18N[state.lang][key]) || I18N.en[key] || key; }
+    function applyI18n() { document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n)); document.documentElement.setAttribute('lang', state.lang); }
+
+    let countdownTimer = null;
+    function setShipTime(hhmm) { state.shipTime = hhmm; saveState(); startCountdown(); }
+    function clearShipTime() { state.shipTime = null; saveState(); stopCountdown(); }
+    function startCountdown() { stopCountdown(); if (!state.shipTime) return; tickCountdown(); countdownTimer = setInterval(tickCountdown, 30000); }
+    function stopCountdown() { if (countdownTimer) clearInterval(countdownTimer); countdownTimer = null; document.querySelectorAll('.countdown').forEach(c => c.classList.add('hidden')); }
+    function getMinutesToShipTime() {
+      if (!state.shipTime) return null;
+      const [h, m] = state.shipTime.split(':').map(Number);
+      const now = new Date(); const ship = new Date(now); ship.setHours(h, m, 0, 0);
+      if (ship < now) ship.setDate(ship.getDate() + 1);
+      return Math.round((ship - now) / 60000);
+    }
+    function fmtCountdown(mins) { if (mins < 0) return '··'; const h = Math.floor(mins / 60); const m = mins % 60; return h > 0 ? `${h}h ${m}m` : `${m} min`; }
+    function tickCountdown() {
+      const mins = getMinutesToShipTime();
+      if (mins == null) { stopCountdown(); return; }
+      const walkBack = (HUBS[state.currentHub] && HUBS[state.currentHub].walkBackMin) || 0;
+      const threshold = walkBack + 15;
+      let cls = '';
+      if (mins <= threshold) cls = 'red';
+      else if (mins <= 90) cls = 'amber';
+      document.querySelectorAll('.countdown').forEach(c => {
+        c.classList.remove('hidden', 'amber', 'red');
+        if (cls) c.classList.add(cls);
+        const txt = c.querySelector('#countdownText, .ct2text');
+        if (txt) txt.textContent = fmtCountdown(mins);
+      });
+      const fr = document.getElementById('floatingReturn');
+      fr.classList.toggle('urgent', cls === 'red');
+    }
+
+    function renderHome() {
+      const hub = HUBS[state.currentHub];
+      document.getElementById('currentHubName').textContent = hub.name[state.lang] || hub.name.en;
+      const walkTitle = state.lang === 'de' ? `Zu Fuß: ${hub.defaultEntryName[state.lang] || hub.defaultEntryName.en}` : `Walk to ${hub.defaultEntryName[state.lang] || hub.defaultEntryName.en}`;
+      document.getElementById('walkHeroTitle').textContent = walkTitle;
+      document.getElementById('walkHeroMins').textContent = `≈ ${hub.defaultEntryMin} min walk`;
+      document.getElementById('walkHeroStops').textContent = `${hub.defaultEntrySteps} turn by turn steps`;
+      const walkHero = document.querySelector('.walk-hero');
+      walkHero.style.display = hub.id === 'cruise-terminal' ? '' : 'none';
+
+      renderPassportCard();
+      renderEventsPill();
+
+      // Split tours into evergreen (regular) and seasonal (Snow Trail etc.)
+      const evergreenTours = TOURS.filter(tr => !tr.isSnowTrail);
+      const seasonalTours = TOURS.filter(tr => tr.isSnowTrail);
+
+      const renderTourCard = (tour) => {
+        const btn = document.createElement('button');
+        btn.className = 'tour-card';
+        btn.style.marginBottom = '14px';
+        btn.dataset.action = 'open-tour';
+        btn.dataset.tourId = tour.id;
+        const stopsCount = tour.stops && tour.stops.length ? tour.stops.length : (tour.isSnowTrail ? 23 : 0);
+        const stopsLabel = tour.isSnowTrail ? `${stopsCount} ${t('snow.windowsLower')}` : `${stopsCount} ${t('overview.stops').toLowerCase()}`;
+        btn.innerHTML = `<div class="tour-img-wrap"><img src="${tour.heroImg}" alt="" loading="lazy" /><div class="tour-overlay"><span class="tour-theme">${tour.theme[state.lang] || tour.theme.en}</span><div><h3 class="tour-title">${tour.title[state.lang] || tour.title.en}</h3><p class="tour-meta"><span>${stopsLabel}</span><span class="dot"></span><span>≈ ${tour.mins} min</span><span class="dot"></span><span>${tour.km} km</span></p></div></div></div>`;
+        return btn;
+      };
+
+      const host = document.getElementById('tourCardsHost');
+      host.innerHTML = '';
+      evergreenTours.forEach(tour => host.appendChild(renderTourCard(tour)));
+
+      const seasonalHost = document.getElementById('seasonalToursHost');
+      const seasonalSection = document.getElementById('seasonalSection');
+      if (seasonalHost) {
+        seasonalHost.innerHTML = '';
+        if (seasonalTours.length === 0) {
+          if (seasonalSection) seasonalSection.style.display = 'none';
+        } else {
+          if (seasonalSection) seasonalSection.style.display = '';
+          seasonalTours.forEach(tour => seasonalHost.appendChild(renderTourCard(tour)));
+        }
+      }
+    }
+
+    function renderEventsPill() {
+      const txt = document.getElementById('eventsPillText');
+      if (!txt) return;
+      const n = WHATS_ON.length;
+      const lang = state.lang;
+      if (n === 0) { document.getElementById('eventsPillHost').style.display = 'none'; return; }
+      txt.textContent = n === 1 ? t('events.pillOne') : t('events.pillMany').replace('{n}', n);
+    }
+
+    function renderEvents() {
+      const host = document.getElementById('eventsListHost');
+      if (!host) return;
+      host.innerHTML = '';
+      WHATS_ON.forEach(ev => {
+        const a = document.createElement('a');
+        a.className = 'events-list-card';
+        a.href = ev.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.innerHTML = `<div class="el-img" style="background-image: url('${ev.img}')"></div><div class="el-body"><p class="el-when">${ev.when[state.lang] || ev.when.en}</p><h3 class="el-title">${ev.title[state.lang] || ev.title.en}</h3><p class="el-venue">${ev.venue[state.lang] || ev.venue.en}</p></div>`;
+        host.appendChild(a);
+      });
+    }
+
+    // Passport helpers
+    function getStampCount() { return (state.passport || []).filter(h => COLLECTIBLE_HUBS.includes(h)).length; }
+    function getNextReward() { const c = getStampCount(); return REWARDS.find(r => c < r.threshold); }
+    function getReadyToClaim() { const c = getStampCount(); return REWARDS.filter(r => c >= r.threshold && !(state.claimedRewards || []).includes(r.id)); }
+
+    function renderPassportCard() {
+      const host = document.getElementById('passportCardHost');
+      if (!host) return;
+      const count = getStampCount();
+      // Hide the passport card entirely until the user has earned a first stamp.
+      // The first NFC tap (cruise terminal on arrival) activates it.
+      if (count === 0) { host.innerHTML = ''; return; }
+      const next = getNextReward();
+      const readyToClaim = getReadyToClaim();
+      const total = COLLECTIBLE_HUBS.length;
+      let subText = '';
+      if (count === 0) subText = t('passport.cardSubStart');
+      else if (readyToClaim.length) subText = t('passport.cardSubReady').replace('{r}', readyToClaim[0].title[state.lang] || readyToClaim[0].title.en);
+      else if (next) subText = t('passport.cardSubNext').replace('{n}', next.threshold - count).replace('{r}', next.title[state.lang] || next.title.en);
+      else subText = t('passport.cardSubFull');
+      const cta = readyToClaim.length ? t('passport.cardCtaClaim') : (count === 0 ? t('passport.cardCtaStart') : t('passport.cardCtaView'));
+      const stampsHtml = COLLECTIBLE_HUBS.map(h => `<span class="passport-stamp ${(state.passport || []).includes(h) ? 'filled' : ''}" aria-hidden="true">${(state.passport || []).includes(h) ? '✓' : ''}</span>`).join('');
+      host.innerHTML = `<button class="passport-card ${readyToClaim.length ? 'ready-claim' : ''}" data-action="open-passport" aria-label="${t('passport.cardTitle')}"><p class="passport-card-title">${t('passport.cardTitle')}</p><p class="passport-card-sub">${count}/${total} ${t('passport.stamps')} · ${subText}</p><div class="passport-stamps">${stampsHtml}</div><p class="passport-card-cta">${cta}</p></button>`;
+    }
+
+    function renderPassport() {
+      const grid = document.getElementById('passportStampGrid');
+      const rewardsHost = document.getElementById('passportRewardsHost');
+      if (!grid || !rewardsHost) return;
+      const count = getStampCount();
+      document.getElementById('passportCount').textContent = `${count} / ${COLLECTIBLE_HUBS.length}`;
+      grid.innerHTML = '';
+      COLLECTIBLE_HUBS.forEach(hubId => {
+        const hub = HUBS[hubId];
+        const filled = (state.passport || []).includes(hubId);
+        const tile = document.createElement('div');
+        tile.className = 'stamp-tile' + (filled ? ' filled' : '');
+        tile.innerHTML = `<div class="st-icon" aria-hidden="true">${filled ? '✓' : '·'}</div><div class="st-name">${hub.name[state.lang] || hub.name.en}</div><div class="st-status">${filled ? t('passport.stamped') : t('passport.notYet')}</div>`;
+        grid.appendChild(tile);
+      });
+      rewardsHost.innerHTML = '';
+      REWARDS.forEach(r => {
+        const unlocked = count >= r.threshold;
+        const claimed = (state.claimedRewards || []).includes(r.id);
+        const card = document.createElement('div');
+        card.className = 'reward-card' + (unlocked ? ' unlocked' : ' locked');
+        let badge;
+        if (claimed) badge = t('passport.rewardClaimed');
+        else if (unlocked) badge = t('passport.rewardReady');
+        else badge = `${r.threshold - count} ${t('passport.rewardMore')}`;
+        let bottom = '';
+        if (unlocked && claimed) {
+          bottom = `<div class="reward-code"><span class="reward-code-num">${r.code}</span><div class="reward-code-instructions">${r.instructions[state.lang] || r.instructions.en}</div></div>`;
+        } else if (unlocked) {
+          bottom = `<button class="rw-claim" data-action="claim-reward" data-reward-id="${r.id}">${t('passport.claimCta')}</button>`;
+        }
+        card.innerHTML = `<div class="rw-icon" aria-hidden="true">${r.icon}</div><p class="rw-badge">${badge}</p><h3 class="rw-title">${r.title[state.lang] || r.title.en}</h3><p class="rw-sub">${r.sub[state.lang] || r.sub.en}</p><p class="rw-partner">${r.partner[state.lang] || r.partner.en}</p>${bottom}`;
+        rewardsHost.appendChild(card);
+      });
+    }
+
+    let stampToastTimer = null;
+    function showStampToast(hubName) {
+      const el = document.getElementById('stampToast');
+      if (!el) return;
+      el.innerHTML = `<span class="st-toast-icon" aria-hidden="true">✓</span><span>${t('passport.stampedToast')} ${hubName}</span>`;
+      el.classList.add('show');
+      clearTimeout(stampToastTimer);
+      stampToastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+    }
+    function showRewardToast(reward) {
+      const el = document.getElementById('stampToast');
+      if (!el) return;
+      el.innerHTML = `<span class="st-toast-icon" aria-hidden="true">${reward.icon}</span><span>${t('passport.rewardUnlockedToast')} ${reward.title[state.lang] || reward.title.en}</span>`;
+      el.classList.add('show');
+      clearTimeout(stampToastTimer);
+      stampToastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    // Snow Trail helpers
+    function getSnowRoute(routeId) { return SNOW_TRAIL.routes[routeId]; }
+    function getSnowStampCount(routeId) {
+      const stamps = (state.snowTrail && state.snowTrail.stamps && state.snowTrail.stamps[routeId]) || [];
+      return stamps.length;
+    }
+    function isSnowRouteComplete(routeId) {
+      const route = getSnowRoute(routeId);
+      return route && getSnowStampCount(routeId) >= route.stops.length;
+    }
+    function isSnowStopFound(routeId, stopId) {
+      const stamps = (state.snowTrail.stamps && state.snowTrail.stamps[routeId]) || [];
+      return stamps.includes(stopId);
+    }
+
+    function renderSnowOverview() {
+      document.getElementById('snowOverviewImg').src = SNOW_TRAIL.heroImg;
+      document.getElementById('snowOverviewImg').alt = SNOW_TRAIL.title[state.lang] || SNOW_TRAIL.title.en;
+      document.getElementById('snowOverviewTitle').textContent = SNOW_TRAIL.title[state.lang] || SNOW_TRAIL.title.en;
+      document.getElementById('snowOverviewDates').textContent = SNOW_TRAIL.dates[state.lang] || SNOW_TRAIL.dates.en;
+      document.getElementById('snowOverviewBlurb').textContent = SNOW_TRAIL.blurb[state.lang] || SNOW_TRAIL.blurb.en;
+      document.getElementById('snowOverviewPrize').textContent = SNOW_TRAIL.prizeBlurb[state.lang] || SNOW_TRAIL.prizeBlurb.en;
+      const host = document.getElementById('snowRoutePickerHost');
+      host.innerHTML = '';
+      Object.values(SNOW_TRAIL.routes).forEach(route => {
+        const count = getSnowStampCount(route.id);
+        const total = route.stops.length;
+        const complete = count >= total;
+        const submitted = state.snowTrail.submitted && state.snowTrail.submitted[route.id];
+        const btn = document.createElement('button');
+        btn.className = 'snow-route-card' + (complete ? ' done' : '');
+        btn.dataset.action = 'pick-snow-route';
+        btn.dataset.routeId = route.id;
+        const progressText = submitted ? t('snow.routeSubmitted')
+          : complete ? t('snow.routeReady')
+          : count > 0 ? `${count}/${total} ${t('snow.stampsLower')}`
+          : '';
+        btn.innerHTML = `<span class="snow-route-icon" aria-hidden="true">${route.icon}</span><span class="src-body"><p class="src-name">${route.name[state.lang] || route.name.en}</p><p class="src-meta">${total} ${t('snow.windowsLower')} · ${route.duration} ${t('snow.minsLower')} · ${route.distance} ${route.distanceUnit}</p>${progressText ? `<p class="src-progress">${progressText}</p>` : ''}</span>`;
+        host.appendChild(btn);
+      });
+    }
+
+    function renderSnowRoute() {
+      const routeId = state.snowTrail.activeRoute;
+      if (!routeId) return;
+      const route = getSnowRoute(routeId);
+      const count = getSnowStampCount(routeId);
+      const total = route.stops.length;
+      document.getElementById('snowRouteIcon').textContent = route.icon;
+      document.getElementById('snowRouteName').textContent = route.name[state.lang] || route.name.en;
+      document.getElementById('snowRouteMeta').textContent = `${route.duration} ${t('snow.mins')} · ${route.distance} ${route.distanceUnit}`;
+      document.getElementById('snowRouteCount').textContent = `${count} / ${total}`;
+
+      const grid = document.getElementById('snowStopGrid');
+      grid.innerHTML = '';
+      route.stops.forEach(stop => {
+        const found = isSnowStopFound(routeId, stop.id);
+        const tile = document.createElement('button');
+        tile.className = 'stamp-tile' + (found ? ' filled' : '') + (stop.isFinal ? ' final' : '');
+        tile.style.cursor = 'pointer';
+        tile.dataset.action = 'open-snow-stop';
+        tile.dataset.stopId = stop.id;
+        tile.innerHTML = `<div class="st-icon" aria-hidden="true">${found ? (stop.isFinal ? '★' : '✓') : stop.id}</div><div class="st-name">${stop.name}</div><div class="st-status">${found ? t('snow.tileFound') : t('snow.tileTap')}</div>`;
+        grid.appendChild(tile);
+      });
+
+      const ctaHost = document.getElementById('snowSubmitCtaHost');
+      ctaHost.innerHTML = '';
+      if (isSnowRouteComplete(routeId)) {
+        const submitted = state.snowTrail.submitted && state.snowTrail.submitted[routeId];
+        const cta = document.createElement('div');
+        cta.className = 'snow-submit-cta';
+        if (submitted) {
+          cta.innerHTML = `<h3>${t('snow.alreadySubmittedTitle')}</h3><p>${t('snow.alreadySubmittedSub').replace('{code}', submitted)}</p><button class="btn btn-secondary" data-action="open-snow-confirmation">${t('snow.viewCode')}</button>`;
+        } else {
+          cta.innerHTML = `<h3>${t('snow.readyTitle')}</h3><p>${t('snow.readySub')}</p><button class="btn btn-primary btn-arrow" data-action="open-snow-submit">${t('snow.submitCta')}</button>`;
+        }
+        ctaHost.appendChild(cta);
+      }
+    }
+
+    function renderSnowStop() {
+      const routeId = state.snowTrail.activeRoute;
+      const stopId = state.snowTrail.activeStopId;
+      if (!routeId || stopId == null) return;
+      const route = getSnowRoute(routeId);
+      const stop = route.stops.find(s => s.id === stopId);
+      if (!stop) return;
+      document.getElementById('snowStopNumber').textContent = `${t('snow.window')} ${stop.id} ${t('snow.of')} ${route.stops.length}`;
+      document.getElementById('snowStopName').textContent = stop.name;
+      document.getElementById('snowStopAddress').textContent = stop.address;
+      const banner = document.getElementById('snowStopFoundBanner');
+      const found = isSnowStopFound(routeId, stopId);
+      banner.style.display = found ? 'inline-flex' : 'none';
+      const ta = document.getElementById('snowStopAnswer');
+      ta.value = (state.snowTrail.answers[routeId] && state.snowTrail.answers[routeId][stopId]) || '';
+    }
+
+    function showSnowConfirmation(routeId) {
+      document.getElementById('snowSubmitFormHost').style.display = 'none';
+      document.getElementById('snowConfirmationHost').style.display = 'block';
+      const code = state.snowTrail.submitted[routeId];
+      document.getElementById('snowSubmissionCode').textContent = code;
+    }
+    function showSnowForm() {
+      document.getElementById('snowSubmitFormHost').style.display = 'block';
+      document.getElementById('snowConfirmationHost').style.display = 'none';
+      document.querySelectorAll('.snow-rating-btn').forEach(b => b.classList.toggle('selected', state.snowTrail.rating != null && Number(b.dataset.rating) === state.snowTrail.rating));
+      document.getElementById('snowFieldName').value = state.snowTrail.submitterName || '';
+      document.getElementById('snowFieldEmail').value = state.snowTrail.submitterEmail || '';
+      document.getElementById('snowFieldPostcode').value = state.snowTrail.submitterPostcode || '';
+      document.getElementById('snowFieldAdults').value = state.snowTrail.groupAdults || 2;
+      document.getElementById('snowFieldChildren').value = state.snowTrail.groupChildren || 0;
+      document.getElementById('snowFieldComments').value = state.snowTrail.comments || '';
+    }
+
+    function generateSnowCode(routeId) {
+      const prefix = routeId === 'snowflake' ? 'SNOW' : 'STAR';
+      const n = Math.floor(1000 + Math.random() * 9000);
+      return `${prefix}-${n}`;
+    }
+
+    function renderWhatsOn() {
+      const host = document.getElementById('whatsOnHost');
+      if (!host) return;
+      host.innerHTML = '';
+      WHATS_ON.forEach(ev => {
+        const a = document.createElement('a');
+        a.className = 'whats-on-card';
+        a.href = ev.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.innerHTML = `<div class="woc-img" style="background-image: url('${ev.img}')"></div><div class="woc-body"><p class="woc-when">${ev.when[state.lang] || ev.when.en}</p><h3 class="woc-title">${ev.title[state.lang] || ev.title.en}</h3><p class="woc-venue">${ev.venue[state.lang] || ev.venue.en}</p></div>`;
+        host.appendChild(a);
+      });
+    }
+
+    function renderHelp() {
+      const list = document.getElementById('safeSpotsList');
+      if (!list) return;
+      list.innerHTML = '';
+      SAFE_SPOTS.forEach(s => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="hl-name">${s.name[state.lang] || s.name.en}</span><span class="hl-detail">${s.detail[state.lang] || s.detail.en}</span>`;
+        list.appendChild(li);
+      });
+    }
+
+    function renderTourOverview(tour) {
+      document.getElementById('overviewHeroImg').src = tour.heroImg;
+      document.getElementById('overviewTheme').textContent = tour.theme[state.lang] || tour.theme.en;
+      document.getElementById('overviewTitle').textContent = tour.title[state.lang] || tour.title.en;
+      document.getElementById('overviewMins').textContent = `≈ ${tour.mins} min`;
+      document.getElementById('overviewStopsLabel').textContent = `${tour.stops.length} stops`;
+      document.getElementById('overviewLength').textContent = `${tour.km} km`;
+      document.getElementById('overviewBlurb').textContent = tour.blurb[state.lang] || tour.blurb.en;
+      document.getElementById('statStops').textContent = tour.stops.length;
+      document.getElementById('statMins').textContent = tour.mins;
+      document.getElementById('statKm').textContent = tour.km;
+      const list = document.getElementById('overviewStopList');
+      list.innerHTML = '';
+      tour.stops.forEach(stop => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span><span class="stop-name">${stop.title[state.lang] || stop.title.en}</span><span class="stop-sub">${stop.sub[state.lang] || stop.sub.en}</span></span>`;
+        list.appendChild(li);
+      });
+    }
+
+    function renderStep() {
+      const onWalk = state.walkDeckActive;
+      const deck = onWalk ? (WALK_DECKS[state.currentHub] || WALK_DECKS['cruise-terminal']) : (TOURS.find(t => t.id === state.activeTourId)?.stops || []);
+      const idx = onWalk ? state.walkStepIdx : state.activeStopIdx;
+      const total = deck.length;
+      const step = deck[idx]; if (!step) return;
+      if (onWalk) {
+        document.getElementById('stepHeroImg').src = step.img;
+        document.getElementById('stepHeroImg').alt = step.title || '';
+        document.getElementById('stepEyebrow').textContent = `Step ${idx + 1} of ${total}`;
+        document.getElementById('stepTitle').textContent = step.title;
+        document.getElementById('stepCopy').textContent = '';
+        document.getElementById('stepDirection').innerHTML = step.dir;
+      } else {
+        const stopTitle = step.title[state.lang] || step.title.en;
+        document.getElementById('stepHeroImg').src = step.img;
+        document.getElementById('stepHeroImg').alt = stopTitle;
+        document.getElementById('stepEyebrow').textContent = `Stop ${idx + 1} of ${total}`;
+        document.getElementById('stepTitle').textContent = stopTitle;
+        document.getElementById('stepCopy').textContent = step.copy[state.lang] || step.copy.en;
+        document.getElementById('stepDirection').innerHTML = step.direction[state.lang] || step.direction.en;
+      }
+      document.getElementById('minimapProgress').textContent = `${idx + 1} / ${total}`;
+      const pp = document.getElementById('stepProgress'); pp.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const pip = document.createElement('span');
+        pip.className = 'pip' + (i < idx ? ' done' : i === idx ? ' current' : '');
+        pp.appendChild(pip);
+      }
+      drawMinimap(total, idx);
+    }
+    function drawMinimap(total, idx) {
+      const svg = document.getElementById('minimapSvg'); svg.innerHTML = '';
+      const w = 320, padX = 24, padY = 30;
+      const usableW = w - 2 * padX;
+      const ptX = i => padX + (usableW * i) / Math.max(total - 1, 1);
+      const ptY = i => padY + (i % 2 === 0 ? 0 : 22);
+      let pathD = '';
+      for (let i = 0; i < total; i++) { const x = ptX(i), y = ptY(i); pathD += (i === 0 ? `M${x},${y}` : ` L${x},${y}`); }
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', pathD); path.setAttribute('stroke', '#c9bd9f'); path.setAttribute('stroke-width', '2'); path.setAttribute('stroke-dasharray', '3 4'); path.setAttribute('fill', 'none');
+      svg.appendChild(path);
+      let progPath = '';
+      for (let i = 0; i <= idx; i++) { const x = ptX(i), y = ptY(i); progPath += (i === 0 ? `M${x},${y}` : ` L${x},${y}`); }
+      if (progPath) {
+        const pProg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pProg.setAttribute('d', progPath); pProg.setAttribute('stroke', '#0f2a3a'); pProg.setAttribute('stroke-width', '2.5'); pProg.setAttribute('fill', 'none');
+        svg.appendChild(pProg);
+      }
+      for (let i = 0; i < total; i++) {
+        const x = ptX(i), y = ptY(i);
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', i === idx ? 7 : 5);
+        c.setAttribute('fill', i < idx ? '#2a6f8a' : i === idx ? '#d6a14a' : '#fff');
+        c.setAttribute('stroke', '#0f2a3a'); c.setAttribute('stroke-width', i === idx ? 2.5 : 1.5);
+        svg.appendChild(c);
+        if (i === idx || i === 0 || i === total - 1) {
+          const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          txt.setAttribute('x', x); txt.setAttribute('y', y + (i % 2 === 0 ? -12 : 22));
+          txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('font-size', '10');
+          txt.setAttribute('font-family', 'Inter, sans-serif'); txt.setAttribute('font-weight', '600'); txt.setAttribute('fill', '#0f2a3a');
+          txt.textContent = i === 0 ? 'Start' : i === total - 1 ? 'End' : (i + 1);
+          svg.appendChild(txt);
+        }
+      }
+    }
+
+    function renderReturn() {
+      const hub = HUBS[state.currentHub];
+      document.getElementById('returnFrom').textContent = hub.name[state.lang] || hub.name.en;
+      document.getElementById('returnMins').textContent = hub.walkBackMin;
+      document.getElementById('returnKm').textContent = (hub.walkBackMin * 0.08).toFixed(1);
+      const list = document.getElementById('returnSteps'); list.innerHTML = '';
+      const steps = RETURN_DECKS[hub.id] || RETURN_DECKS['bargate'];
+      steps.forEach(s => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span><span class="stop-name">${s.name}</span><span class="stop-sub">${s.sub}</span></span>`;
+        list.appendChild(li);
+      });
+    }
+
+    function renderArrived(context) {
+      const t1 = document.getElementById('arrivedTitle'), s1 = document.getElementById('arrivedSub');
+      if (context === 'tour') {
+        const tour = TOURS.find(x => x.id === state.activeTourId);
+        t1.textContent = 'Tour complete';
+        s1.textContent = `You followed the ${tour.title[state.lang] || tour.title.en} trail. We hope Southampton charmed you.`;
+      } else if (context === 'returned') {
+        t1.textContent = 'Welcome back';
+        s1.textContent = "Have a brilliant onward voyage. Don't forget to leave a review on Visit Southampton.";
+      } else {
+        t1.textContent = 'Arrived'; s1.textContent = "You're here. Tap a Loop nearby to continue.";
+      }
+    }
+
+    function handleTag(tagId) {
+      if (!HUBS[tagId]) return;
+      const prevCount = getStampCount();
+      const isNewStamp = COLLECTIBLE_HUBS.includes(tagId) && !(state.passport || []).includes(tagId);
+      state.currentHub = tagId;
+      if (isNewStamp) state.passport = [...(state.passport || []), tagId];
+      saveState();
+      renderHome();
+      show('home');
+      screenStack = ['home'];
+      if (navigator.vibrate) navigator.vibrate(isNewStamp ? [40, 30, 60] : 50);
+      if (isNewStamp) {
+        setTimeout(() => {
+          showStampToast(HUBS[tagId].name[state.lang] || HUBS[tagId].name.en);
+          // If the new stamp crossed a reward threshold, queue a second toast
+          const newCount = getStampCount();
+          const newlyUnlocked = REWARDS.find(r => prevCount < r.threshold && newCount >= r.threshold);
+          if (newlyUnlocked) setTimeout(() => showRewardToast(newlyUnlocked), 3000);
+        }, 400);
+      }
+    }
+    function readTagFromUrl() {
+      const tag = new URLSearchParams(window.location.search).get('tag');
+      if (!tag || !HUBS[tag]) return null;
+      const prevCount = getStampCount();
+      state.currentHub = tag;
+      const wasNew = COLLECTIBLE_HUBS.includes(tag) && !(state.passport || []).includes(tag);
+      if (wasNew) state.passport = [...(state.passport || []), tag];
+      saveState();
+      const newCount = getStampCount();
+      const newlyUnlocked = REWARDS.find(r => prevCount < r.threshold && newCount >= r.threshold);
+      return { hub: tag, wasNew, newlyUnlocked };
+    }
+    async function startNFC() {
+      if (!('NDEFReader' in window)) return;
+      try {
+        const reader = new NDEFReader(); await reader.scan();
+        reader.addEventListener('reading', ({ message }) => {
+          for (const record of message.records) {
+            if (record.recordType === 'text') {
+              const tag = new TextDecoder(record.encoding || 'utf-8').decode(record.data).trim();
+              handleTag(tag); return;
+            }
+            if (record.recordType === 'url') {
+              try { const tag = new URL(new TextDecoder().decode(record.data)).searchParams.get('tag'); if (tag) handleTag(tag); } catch (e) {}
+              return;
+            }
+          }
+        });
+      } catch (e) {}
+    }
+
+    function detectLanguage() {
+      const stored = state.lang;
+      if (stored && I18N[stored] && stored !== 'en') return;
+      if (stored === 'en') { /* could be initial default; try to upgrade */ }
+      const browserLang = (navigator.language || 'en').slice(0, 2);
+      if (I18N[browserLang]) state.lang = browserLang;
+    }
+
+    document.addEventListener('click', e => { const el = e.target.closest('[data-action]'); if (el) handleAction(el.dataset.action, el); });
+    document.addEventListener('click', e => {
+      const langBtn = e.target.closest('.lang-card[data-lang]');
+      if (langBtn && !langBtn.disabled) {
+        document.querySelectorAll('.lang-card').forEach(b => b.classList.remove('active'));
+        langBtn.classList.add('active');
+        state.lang = langBtn.dataset.lang; saveState(); applyI18n();
+      }
+    });
+    document.querySelectorAll('[data-quick]').forEach(btn => btn.addEventListener('click', () => { document.getElementById('shipTimeInput').value = btn.dataset.quick; }));
+    document.addEventListener('click', e => {
+      const ratingBtn = e.target.closest('.snow-rating-btn[data-rating]');
+      if (ratingBtn) {
+        state.snowTrail.rating = Number(ratingBtn.dataset.rating);
+        saveState();
+        document.querySelectorAll('.snow-rating-btn').forEach(b => b.classList.toggle('selected', b === ratingBtn));
+      }
+    });
+
+    function handleAction(action, el) {
+      switch (action) {
+        case 'go-language': go('language'); requestAnimationFrame(() => { document.querySelectorAll('.lang-card').forEach(b => b.classList.toggle('active', b.dataset.lang === state.lang)); }); break;
+        case 'go-ship-time': go('ship-time'); break;
+        case 'confirm-ship-time': { const v = document.getElementById('shipTimeInput').value; if (v) setShipTime(v); state.setupComplete = true; saveState(); renderHome(); show('home'); screenStack = ['home']; break; }
+        case 'skip-ship-time': clearShipTime(); state.setupComplete = true; saveState(); renderHome(); show('home'); screenStack = ['home']; break;
+        case 'skip-to-home': state.setupComplete = true; saveState(); renderHome(); show('home'); screenStack = ['home']; if (state.shipTime) startCountdown(); break;
+        case 'open-language': go('language'); requestAnimationFrame(() => { document.querySelectorAll('.lang-card').forEach(b => b.classList.toggle('active', b.dataset.lang === state.lang)); }); break;
+        case 'back': back(); break;
+        case 'open-tour': {
+          const tour = TOURS.find(t => t.id === el.dataset.tourId);
+          if (!tour) return;
+          if (tour.isSnowTrail) { renderSnowOverview(); go('snow-overview'); return; }
+          state.activeTourId = tour.id; state.activeStopIdx = 0; saveState();
+          renderTourOverview(tour); go('tour-overview');
+          break;
+        }
+        case 'pick-snow-route': {
+          const routeId = el.dataset.routeId;
+          if (!SNOW_TRAIL.routes[routeId]) return;
+          state.snowTrail.activeRoute = routeId; saveState();
+          renderSnowRoute(); go('snow-route');
+          break;
+        }
+        case 'snow-back-to-overview': {
+          renderSnowOverview();
+          while (screenStack.length > 1 && screenStack[screenStack.length - 1] !== 'snow-overview') screenStack.pop();
+          show('snow-overview');
+          break;
+        }
+        case 'open-snow-stop': {
+          const stopId = Number(el.dataset.stopId);
+          state.snowTrail.activeStopId = stopId; saveState();
+          renderSnowStop(); go('snow-stop');
+          break;
+        }
+        case 'mark-snow-found': {
+          const routeId = state.snowTrail.activeRoute;
+          const stopId = state.snowTrail.activeStopId;
+          if (!routeId || stopId == null) return;
+          const answer = (document.getElementById('snowStopAnswer').value || '').trim();
+          if (answer) {
+            state.snowTrail.answers[routeId] = state.snowTrail.answers[routeId] || {};
+            state.snowTrail.answers[routeId][stopId] = answer;
+          }
+          state.snowTrail.stamps[routeId] = state.snowTrail.stamps[routeId] || [];
+          if (!state.snowTrail.stamps[routeId].includes(stopId)) state.snowTrail.stamps[routeId].push(stopId);
+          saveState();
+          const stop = SNOW_TRAIL.routes[routeId].stops.find(s => s.id === stopId);
+          if (stop) showStampToast(stop.name);
+          renderSnowRoute();
+          while (screenStack.length > 1 && screenStack[screenStack.length - 1] !== 'snow-route') screenStack.pop();
+          show('snow-route');
+          break;
+        }
+        case 'open-snow-submit': { showSnowForm(); go('snow-submit'); break; }
+        case 'submit-snow': {
+          const routeId = state.snowTrail.activeRoute;
+          if (!routeId) return;
+          const errEl = document.getElementById('snowSubmitError');
+          const showErr = (msg) => { if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; } };
+          const clearErr = () => { if (errEl) { errEl.textContent = ''; errEl.style.display = 'none'; } };
+          const name = (document.getElementById('snowFieldName').value || '').trim();
+          const email = (document.getElementById('snowFieldEmail').value || '').trim();
+          if (!name) { showErr(t('snow.errName')); return; }
+          if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr(t('snow.errEmail')); return; }
+          clearErr();
+          state.snowTrail.submitterName = name;
+          state.snowTrail.submitterEmail = email;
+          state.snowTrail.submitterPostcode = document.getElementById('snowFieldPostcode').value || '';
+          state.snowTrail.groupAdults = Number(document.getElementById('snowFieldAdults').value || 0);
+          state.snowTrail.groupChildren = Number(document.getElementById('snowFieldChildren').value || 0);
+          state.snowTrail.comments = document.getElementById('snowFieldComments').value || '';
+          state.snowTrail.submitted[routeId] = generateSnowCode(routeId);
+          saveState();
+          showSnowConfirmation(routeId);
+          break;
+        }
+        case 'submit-snow-anon': {
+          const routeId = state.snowTrail.activeRoute;
+          if (!routeId) return;
+          state.snowTrail.submitterName = '';
+          state.snowTrail.submitterEmail = '';
+          state.snowTrail.submitterPostcode = '';
+          state.snowTrail.groupAdults = 0;
+          state.snowTrail.groupChildren = 0;
+          state.snowTrail.rating = null;
+          state.snowTrail.comments = '';
+          state.snowTrail.submitted[routeId] = generateSnowCode(routeId);
+          saveState();
+          showSnowConfirmation(routeId);
+          break;
+        }
+        case 'open-snow-confirmation': { showSnowConfirmation(state.snowTrail.activeRoute); go('snow-submit'); break; }
+        case 'open-events': { renderEvents(); go('events'); break; }
+        case 'start-tour': state.activeStopIdx = 0; state.walkDeckActive = false; saveState(); renderStep(); go('step'); break;
+        case 'start-walk-to-city': state.walkDeckActive = true; state.walkStepIdx = 0; saveState(); renderStep(); go('step'); break;
+        case 'next-step': {
+          if (state.walkDeckActive) {
+            const deck = WALK_DECKS[state.currentHub] || WALK_DECKS['cruise-terminal'];
+            if (state.walkStepIdx >= deck.length - 1) {
+              state.currentHub = HUBS[state.currentHub].defaultEntry;
+              state.walkDeckActive = false; saveState();
+              renderHome(); show('home'); screenStack = ['home']; return;
+            }
+            state.walkStepIdx += 1;
+          } else {
+            const tour = TOURS.find(t => t.id === state.activeTourId); if (!tour) return;
+            if (state.activeStopIdx >= tour.stops.length - 1) { renderArrived('tour'); go('arrived'); return; }
+            state.activeStopIdx += 1;
+          }
+          saveState(); renderStep(); break;
+        }
+        case 'prev-step':
+          if (state.walkDeckActive) state.walkStepIdx = Math.max(0, state.walkStepIdx - 1);
+          else state.activeStopIdx = Math.max(0, state.activeStopIdx - 1);
+          saveState(); renderStep(); break;
+        case 'exit-tour': state.activeTourId = null; state.walkDeckActive = false; saveState(); renderHome(); show('home'); screenStack = ['home']; break;
+        case 'go-return': renderReturn(); go('return-to-ship'); break;
+        case 'confirm-returned': state.currentHub = 'cruise-terminal'; saveState(); renderArrived('returned'); go('arrived'); break;
+        case 'go-home': renderHome(); show('home'); screenStack = ['home']; break;
+        case 'open-help': renderHelp(); go('help'); break;
+        case 'open-passport': renderPassport(); go('passport'); break;
+        case 'claim-reward': {
+          const rid = el.dataset.rewardId;
+          state.claimedRewards = [...(state.claimedRewards || [])];
+          if (!state.claimedRewards.includes(rid)) state.claimedRewards.push(rid);
+          saveState(); renderPassport();
+          break;
+        }
+        case 'reset-app': {
+          try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+          state.lang = 'en';
+          state.currentHub = 'cruise-terminal';
+          state.shipTime = null;
+          state.activeTourId = null;
+          state.activeStopIdx = 0;
+          state.walkDeckActive = false;
+          state.walkStepIdx = 0;
+          state.setupComplete = false;
+          state.passport = [];
+          state.claimedRewards = [];
+          state.snowTrail = {
+            activeRoute: null, activeStopId: null,
+            stamps: { snowflake: [], star: [] },
+            answers: { snowflake: {}, star: {} },
+            submitted: { snowflake: null, star: null },
+            submitterName: '', submitterEmail: '', submitterPostcode: '',
+            groupAdults: 2, groupChildren: 0, rating: null, comments: '',
+          };
+          stopCountdown();
+          detectLanguage();
+          applyI18n();
+          screenStack = ['welcome'];
+          show('welcome');
+          break;
+        }
+      }
+    }
+
+    function init() {
+      if (new URLSearchParams(window.location.search).get('reset') === '1') {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      }
+      loadState();
+      detectLanguage();
+      const tagResult = readTagFromUrl();
+      applyI18n();
+      const userIsConfigured = state.shipTime !== null || state.setupComplete === true;
+      if (userIsConfigured) { renderHome(); show('home'); screenStack = ['home']; }
+      if (state.shipTime) startCountdown();
+      // If a fresh stamp was earned via URL tag and user is past setup, celebrate it
+      if (userIsConfigured && tagResult && tagResult.wasNew) {
+        setTimeout(() => {
+          showStampToast(HUBS[tagResult.hub].name[state.lang] || HUBS[tagResult.hub].name.en);
+          if (tagResult.newlyUnlocked) setTimeout(() => showRewardToast(tagResult.newlyUnlocked), 3200);
+        }, 700);
+      }
+      document.body.addEventListener('click', () => startNFC(), { once: true });
+    }
+    init();
+  </script>
+</body>
+</html>
